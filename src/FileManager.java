@@ -3,9 +3,10 @@ import java.nio.file.Files;
 import java.security.DigestInputStream;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
+import java.util.Arrays;
 
-public class FileManager {
-    String directoryPath;
+public class FileManager implements Serializable {
+     String directoryPath;
      File file;
      byte[] filehash;
      int blockNumber;
@@ -13,13 +14,42 @@ public class FileManager {
      FileBlock[] fileBlocks;
      final int blocksize = 102400;
 
+
+     FileManager(File file){
+         try {
+             ObjectInputStream objectInputStream = new ObjectInputStream(new FileInputStream(file.getName()));
+             FileManager restoredFileManager = (FileManager) objectInputStream.readObject();
+             this.directoryPath = restoredFileManager.directoryPath;
+             this.file = restoredFileManager.file;
+             this.fileSize = restoredFileManager.fileSize;
+             this.blockNumber = restoredFileManager.blockNumber;
+             this.filehash = restoredFileManager.filehash;
+             this.fileBlocks = restoredFileManager.fileBlocks;
+         }catch (Exception e){
+             e.printStackTrace();
+         }
+
+     }
+
     FileManager(String directoryPath) {
         this.directoryPath = directoryPath;
         this.file = new File(directoryPath);
         this.fileSize = (int) file.length();
         this.blockNumber = (int) Math.ceil( (double) fileSize / blocksize) ;
         this.filehash = getFileHash();
-        this.fileBlocks = new FileBlock[blocksize];
+        this.fileBlocks = new FileBlock[blockNumber];
+    }
+
+    void saveFileData(){
+        try{
+            String filename = file.getName();
+            FileOutputStream fileOutputStream = new FileOutputStream(filename + ".ser");
+            ObjectOutputStream objectOutputStream = new ObjectOutputStream(fileOutputStream);
+            objectOutputStream.writeObject(this);
+            objectOutputStream.close();
+        }catch(IOException e){
+            e.printStackTrace();
+        }
     }
 
     public void readAllFiles() {
@@ -50,36 +80,25 @@ public class FileManager {
 
     void splitFile(){
         for(int i = 0; i < blockNumber ; i++ ){
-            this.fileBlocks[i] = new FileBlock(i * blocksize, ((i+1) * blocksize)-1);
+            int start = i * blocksize == 0 ? 0 : i * blocksize + 1;
+            int end = Math.min(blocksize * (i + 1), this.fileSize);
+            this.fileBlocks[i] = new FileBlock(start, end);
             this.fileBlocks[i].hashblock(this.file);
         }
     }
-    class FileBlock{
-        int startByte;
-        int endByte;
-        byte[] hash;
-
-        FileBlock(int startByte, int endByte){
-            this.startByte = startByte;
-            this.endByte = endByte;
-        }
-
-        public void hashblock(File file) {
-            try (RandomAccessFile fileStream = new RandomAccessFile(file, "r")) {
-                long length = this.endByte - this.startByte;
-                byte[] bytes = new byte[(int) length];
-                fileStream.seek(this.startByte);
-                fileStream.readFully(bytes);
-                this.hash = sha256Hash(bytes);
-            } catch (Exception e) {
-                throw new RuntimeException(e);
+    @Override
+    public String toString() {
+        StringBuilder hexString = new StringBuilder();
+        for (byte b : this.filehash) {
+            String hex = Integer.toHexString(0xff & b);
+            if (hex.length() == 1) {
+                hexString.append('0');
             }
+            hexString.append(hex);
         }
-
-        public static byte[] sha256Hash(byte[] bytes) throws NoSuchAlgorithmException {
-            MessageDigest md = MessageDigest.getInstance("SHA-256");
-            return md.digest(bytes);
-        }
+        return ("File size: " + this.fileSize + " block number: " + this.blockNumber + " hash: " + hexString);
     }
+
+
 
 }
