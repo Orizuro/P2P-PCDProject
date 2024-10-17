@@ -4,6 +4,8 @@ import java.io.*;
 import java.net.*;
 import Communication.Command;
 import Communication.MessageWrapper;
+import NameNotFound.FileSearchResult;
+import NameNotFound.WordSearchMessage;
 
 import static Communication.Command.Terminate;
 
@@ -50,10 +52,23 @@ public class SocketClient  {
         MessageWrapper message = null;
         try {
             message = (MessageWrapper) in.readObject();
+            switch (message.getCommand()) {
+                case Command.FileSearchResult: {
+                    FileSearchResult[] data =  (FileSearchResult[])  message.getData();
+                    for (FileSearchResult file : data) {
+                        System.out.println(file.toString());
+                    }
+                    break;
+                }
+                default: {
+                    System.out.println(message.getData().toString());
+                    break;
+                }
+            }
         } catch (ClassNotFoundException e) {
             throw new RuntimeException(e);
         }
-        System.out.println(message.getData().toString());
+
     }
 
     public synchronized void stopConnection() throws IOException, InterruptedException {

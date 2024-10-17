@@ -3,6 +3,6 @@ package Communication;
 public enum Command {
     String,
     Terminate,
-    WordSearchResult,
+    FileSearchResult,
     WordSearchMessage,
 }

@@ -2,8 +2,14 @@ package Server;
 
 import java.io.*;
 import java.net.*;
+import java.util.List;
+
 import Communication.Command;
 import Communication.MessageWrapper;
+import Files.FileManager;
+import NameNotFound.FileSearchResult;
+import NameNotFound.WordSearchMessage;
+import NameNotFound.WordSearchResult;
 
 public class SocketServer extends Thread {
 
@@ -43,6 +49,16 @@ public class SocketServer extends Thread {
             try {
                 MessageWrapper message = (MessageWrapper) in.readObject();
                 switch (message.getCommand()) {
+                    case Command.WordSearchMessage:{
+                        WordSearchMessage data =  (WordSearchMessage)  message.getData();
+                        List<FileManager> searchResult =  data.search();
+                        FileSearchResult[] result = new FileSearchResult[searchResult.size()];
+                        for(int i = 0; i < searchResult.size(); i++){
+                            result[i] = new FileSearchResult(data, searchResult.get(i), message.getReceiver() ,socket.getPort());
+                        }
+                        out.writeObject(new MessageWrapper(message.getReceiver(),Command.FileSearchResult ,result));
+                        break;
+                    }
                     case Command.Terminate:{
                         return;
                     }
