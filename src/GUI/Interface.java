@@ -9,6 +9,7 @@ import javax.swing.*;
 public class Interface {
 
     private JFrame frame;
+    private JFrame popFrame;
     private DefaultListModel<String> searchResultsModel; // Modelo para a JList
 
     public Interface() {
@@ -30,7 +31,7 @@ public class Interface {
 
         frame.setLayout(new BorderLayout());
 
-        // Painel superior
+        // Layout do Painel superior
         JPanel topPanel = new JPanel(new GridLayout(1,3)); //para ficar centrado como o exemplo dado pelo prof tem que se usar a GridLayout, embora também possamos usar aqui a BorderLayout e ficaria melhor visualmente
 
             JLabel instructionsSearchWindow = new JLabel("Texto a procurar: ");
@@ -44,8 +45,7 @@ public class Interface {
         frame.add(topPanel, BorderLayout.NORTH);
 
 
-        // Painel lateral direito para botões "Descarregar" e "Ligar a Nó"
-
+        // Layout do Painel lateral direito
         JPanel rightPanel = new JPanel(new GridLayout(2,1));
 
             JButton buttonDownload = new JButton("Descarregar");
@@ -57,7 +57,7 @@ public class Interface {
         frame.add(rightPanel, BorderLayout.EAST);
 
 
-        // Painel lateral esquerdo e central
+        // Layout do Painel lateral esquerdo e central
         JPanel leftPanel = new JPanel(new BorderLayout());
 
             searchResultsModel = new DefaultListModel<>();
@@ -69,6 +69,39 @@ public class Interface {
         frame.add(leftPanel, BorderLayout.CENTER);
 
 
+        // Action Listener do Botão "Procurar"
+        buttonSearch.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                String searchTerm = textSearchWindow.getText();
+                // (...)
+
+            }
+        });
+
+        // Action Listener do Botão "Descarregar"
+        buttonDownload.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                String selectedFile = searchResultsList.getSelectedValue();
+                if (selectedFile != null) {
+                    // (...)
+                } else {
+                    JOptionPane.showMessageDialog(frame, "Selecione um ficheiro primeiro.");
+                }
+            }
+        });
+
+
+
+        // Action Listener do Botão "Ligar a Nó"
+        buttonNode.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+
+            }
+        });        
+        
     }
 
 
