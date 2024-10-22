@@ -93,12 +93,11 @@ public class Interface {
         });
 
 
-
         // Action Listener do Botão "Ligar a Nó"
         buttonNode.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-
+                // (...)
             }
         });        
         
