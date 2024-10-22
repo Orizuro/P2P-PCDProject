@@ -9,7 +9,6 @@ import javax.swing.*;
 public class MainInterface {
 
     private JFrame frame;
-    private JFrame popFrame;
     private DefaultListModel<String> searchResultsModel; // Modelo para a JList
 
     public MainInterface() {
@@ -80,6 +79,7 @@ public class MainInterface {
             }
         });
 
+
         // Action Listener do Botão "Descarregar"
         buttonDownload.addActionListener(new ActionListener() {
             @Override
@@ -92,6 +92,7 @@ public class MainInterface {
                 }
             }
         });
+
 
         // Action Listener do Botão "Ligar a Nó"
         buttonNode.addActionListener(new ActionListener() {
