@@ -6,13 +6,13 @@ import java.awt.event.ActionListener;
 
 import javax.swing.*;
 
-public class Interface {
+public class MainInterface {
 
     private JFrame frame;
     private JFrame popFrame;
     private DefaultListModel<String> searchResultsModel; // Modelo para a JList
 
-    public Interface() {
+    public MainInterface() {
         frame = new JFrame();
         frame.setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE); // para que o botao de fechar a janela termine a aplicacao
         addFrameContent();
@@ -45,6 +45,18 @@ public class Interface {
         frame.add(topPanel, BorderLayout.NORTH);
 
 
+        // Layout do Painel lateral esquerdo e central
+        JPanel leftPanel = new JPanel(new BorderLayout());
+
+        searchResultsModel = new DefaultListModel<>();
+        JList<String> searchResultsList = new JList<>(searchResultsModel);
+
+        JScrollPane scrollPane = new JScrollPane(searchResultsList);
+        leftPanel.add(scrollPane, BorderLayout.CENTER);
+
+        frame.add(leftPanel, BorderLayout.CENTER);
+
+
         // Layout do Painel lateral direito
         JPanel rightPanel = new JPanel(new GridLayout(2,1));
 
@@ -56,17 +68,6 @@ public class Interface {
 
         frame.add(rightPanel, BorderLayout.EAST);
 
-
-        // Layout do Painel lateral esquerdo e central
-        JPanel leftPanel = new JPanel(new BorderLayout());
-
-            searchResultsModel = new DefaultListModel<>();
-            JList<String> searchResultsList = new JList<>(searchResultsModel);
-
-                JScrollPane scrollPane = new JScrollPane(searchResultsList);
-                leftPanel.add(scrollPane, BorderLayout.CENTER);
-
-        frame.add(leftPanel, BorderLayout.CENTER);
 
 
         // Action Listener do Botão "Procurar"
@@ -92,30 +93,19 @@ public class Interface {
             }
         });
 
-
         // Action Listener do Botão "Ligar a Nó"
         buttonNode.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                // (...)
+                PopUpInterface.main(null);
             }
         });        
         
     }
 
 
-
-
-
-
-
-
-
-
-
-
     public static void main(String[] args) {
-        Interface gui = new Interface();
+        MainInterface gui = new MainInterface();
         gui.open();
     }
 
