@@ -10,6 +10,7 @@ class FileBlock implements Serializable {
     int startByte;
     int endByte;
     byte[] hash;
+    int firstbytestohash = 100;
 
     FileBlock(int startByte, int endByte){
         this.startByte = startByte;
@@ -18,8 +19,8 @@ class FileBlock implements Serializable {
 
     public void hashblock(File file) {
         try (RandomAccessFile fileStream = new RandomAccessFile(file, "r")) {
-            long length = this.endByte - this.startByte;
-            byte[] bytes = new byte[(int) length];
+            int length = (Math.min(this.endByte - this.startByte, firstbytestohash));
+            byte[] bytes = new byte[length];
             fileStream.seek(this.startByte);
             fileStream.readFully(bytes);
             this.hash = sha256Hash(bytes);

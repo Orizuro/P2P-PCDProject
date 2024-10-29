@@ -5,7 +5,7 @@ import java.io.File;
 public class GlobalConfig {
 
     private GlobalConfig instance = null;
-    private String defaultPath = "./documents/";
+    private String defaultPath = "documents/";
 
     public GlobalConfig getInstance() {
         if (instance == null) {

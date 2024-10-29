@@ -3,27 +3,28 @@ package Files;
 import Communication.GlobalConfig;
 
 import java.io.*;
+import java.nio.file.Files;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 
 public class FileManager implements Serializable {
-    public File file;
-    public byte[] filehash;
+    public String name;
+    public String filehash;
     int blockNumber;
     public int fileSize;
     FileBlock[] fileBlocks = null;
     final int blocksize = 102400;
 
     public FileManager(File file){
-         File save = new File(file.getName() + ".ser");
+         File save = new File( file + ".ser");
          if(file.getName().endsWith(".ser") || file.isDirectory()){
              return;
          }
          if(save.exists()){
              try {
-                 ObjectInputStream objectInputStream = new ObjectInputStream(new FileInputStream(save.getName()));
+                 ObjectInputStream objectInputStream = new ObjectInputStream(new FileInputStream(save));
                  FileManager restoredFileManager = (FileManager) objectInputStream.readObject();
-                 this.file = restoredFileManager.file;
+                 this.name = restoredFileManager.name;
                  this.fileSize = restoredFileManager.fileSize;
                  this.blockNumber = restoredFileManager.blockNumber;
                  this.filehash = restoredFileManager.filehash;
@@ -32,13 +33,14 @@ public class FileManager implements Serializable {
                  System.out.println(e);
                  e.printStackTrace();
              }
-         }
-         else{
-             this.file = file;
+         } else{
+             System.out.println("File does not exist");
+             this.name = file.getName();
              this.fileSize = (int) file.length();
              this.blockNumber = (int) Math.ceil( (double) fileSize / blocksize) ;
-             this.filehash = getFileHash();
+             this.filehash = getFileHash(file);
              this.fileBlocks = new FileBlock[blockNumber];
+             splitFile(file);
              saveFileData();
          }
 
@@ -46,7 +48,7 @@ public class FileManager implements Serializable {
 
     void saveFileData(){
         try{
-            String filename = file.getName();
+            String filename = this.name;
             GlobalConfig gc = new GlobalConfig();
             FileOutputStream fileOutputStream = new FileOutputStream(gc.getDefaultPath() + filename + ".ser");
             ObjectOutputStream objectOutputStream = new ObjectOutputStream(fileOutputStream);
@@ -58,43 +60,46 @@ public class FileManager implements Serializable {
     }
 
 
-    private byte[] getFileHash() {
+    private  String getFileHash(File file) {
         try {
             MessageDigest digest = MessageDigest.getInstance("SHA-256");
-            try (FileInputStream fis = new FileInputStream(this.file)) {
-                byte[] buffer = new byte[1024];
+            try (InputStream inputStream = Files.newInputStream(file.toPath())) {
+                byte[] buffer = new byte[512];
                 int bytesRead;
-                while ((bytesRead = fis.read(buffer)) != -1) {
+                while ((bytesRead = inputStream.read(buffer)) != -1) {
                     digest.update(buffer, 0, bytesRead);
                 }
             }
-            return digest.digest();
+            StringBuilder hexString = new StringBuilder();
+
+            for (byte b : digest.digest()) {
+                String hex = Integer.toHexString(0xff & b);
+                if (hex.length() == 1) {
+                    hexString.append('0');
+                }
+                hexString.append(hex);
+            }
+
+            return hexString.toString();
         } catch (NoSuchAlgorithmException | IOException e) {
             e.printStackTrace();
             return null;
         }
     }
 
-    void splitFile(){
+    void splitFile(File file){
         for(int i = 0; i < blockNumber ; i++ ){
             int start = i * blocksize == 0 ? 0 : i * blocksize + 1;
             int end = Math.min(blocksize * (i + 1), this.fileSize);
             this.fileBlocks[i] = new FileBlock(start, end);
-            this.fileBlocks[i].hashblock(this.file);
+            this.fileBlocks[i].hashblock(file);
         }
     }
 
+
     @Override
     public String toString() {
-        StringBuilder hexString = new StringBuilder();
-        for (byte b : this.filehash) {
-            String hex = Integer.toHexString(0xff & b);
-            if (hex.length() == 1) {
-                hexString.append('0');
-            }
-            hexString.append(hex);
-        }
-        return ("File size: " + this.fileSize + " block number: " + this.blockNumber + " hash: " + hexString);
+        return ("File size: " + this.fileSize + " block number: " + this.blockNumber + " hash: " + this.filehash);
     }
 
 

@@ -48,6 +48,7 @@ public class SocketServer extends Thread {
         while(running){
             try {
                 MessageWrapper message = (MessageWrapper) in.readObject();
+                System.out.println("Server received message");
                 switch (message.getCommand()) {
                     case Command.WordSearchMessage:{
                         WordSearchMessage data =  (WordSearchMessage)  message.getData();

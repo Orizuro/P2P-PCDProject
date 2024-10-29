@@ -37,7 +37,7 @@ public class SocketClient  {
 
     }
 
-    public synchronized void sendObject(Command command,  Object object) throws IOException, InterruptedException {
+    public  void sendObject(Command command,  Object object) throws IOException, InterruptedException {
         while (!ready) {
             wait();
         }
@@ -45,26 +45,13 @@ public class SocketClient  {
         this.out.writeObject(message);
     }
 
-    public synchronized void receiveObject() throws IOException, InterruptedException {
+    public synchronized MessageWrapper receiveObject() throws IOException, InterruptedException {
         while (!ready) {
             wait();
         }
         MessageWrapper message = null;
         try {
-            message = (MessageWrapper) in.readObject();
-            switch (message.getCommand()) {
-                case Command.FileSearchResult: {
-                    FileSearchResult[] data =  (FileSearchResult[])  message.getData();
-                    for (FileSearchResult file : data) {
-                        System.out.println(file.toString());
-                    }
-                    break;
-                }
-                default: {
-                    System.out.println(message.getData().toString());
-                    break;
-                }
-            }
+            return (MessageWrapper) in.readObject();
         } catch (ClassNotFoundException e) {
             throw new RuntimeException(e);
         }
@@ -72,6 +59,7 @@ public class SocketClient  {
     }
 
     public synchronized void stopConnection() throws IOException, InterruptedException {
+
         sendObject(Terminate,null);
         Thread.sleep(100);
         this.clientSocket.close();
