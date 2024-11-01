@@ -7,7 +7,7 @@ public class MessageWrapper implements Serializable {
     private String receiverIp;
     //private String senderIp;
     private Command command;
-    private Object data;
+    private Object data;     // Variável que armazena os dados associados à mensagem
     //, String senderIp
     public MessageWrapper(String receiverIp, Command command, Object data) {
         this.receiverIp = receiverIp;

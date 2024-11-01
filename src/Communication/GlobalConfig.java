@@ -4,16 +4,17 @@ import java.io.File;
 
 public class GlobalConfig {
 
-    private GlobalConfig instance = null;
-    private String defaultPath = "documents/";
+    private GlobalConfig instance = null;  // (singleton)
+    private String defaultPath = "documents/"; // Caminho padrão para diretórios
 
     public GlobalConfig getInstance() {
-        if (instance == null) {
+        if (instance == null) {    // Verifica se a instância ainda não foi criada
             instance = new GlobalConfig();
         }
         return instance;
     }
 
+    // Metodo para obter o caminho padrão
     public String getDefaultPath() {
         validateDirectory();
         return defaultPath;
