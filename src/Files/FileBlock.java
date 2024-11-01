@@ -17,12 +17,12 @@ class FileBlock implements Serializable {
     }
 
     public void hashblock(File file) {
-        try (RandomAccessFile fileStream = new RandomAccessFile(file, "r")) {
+        try (RandomAccessFile fileStream = new RandomAccessFile(file, "r")) {    // Cria um arquivo de leitura
             long length = this.endByte - this.startByte;
             byte[] bytes = new byte[(int) length];
-            fileStream.seek(this.startByte);
-            fileStream.readFully(bytes);
-            this.hash = sha256Hash(bytes);
+            fileStream.seek(this.startByte);    // Move o ponteiro do arquivo para o início do bloco
+            fileStream.readFully(bytes);     // Lê o bloco de bytes do arquivo
+            this.hash = sha256Hash(bytes);    // Calcula o hash dos bytes lidos
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
@@ -34,10 +34,10 @@ class FileBlock implements Serializable {
     }
 
     @Override
-    public String toString(){
+    public String toString(){    // StringBuilder para a representação hexadecimal
         StringBuilder hexString = new StringBuilder();
-        for (byte b : this.hash) {
-            String hex = Integer.toHexString(0xff & b);
+        for (byte b : this.hash) {     // Itera sobre os bytes do hash
+            String hex = Integer.toHexString(0xff & b);    // Converte cada byte para representação hexadecimal
             if (hex.length() == 1) {
                 hexString.append('0');
             }

@@ -15,7 +15,7 @@ public class SocketServer extends Thread {
 
     private ServerSocket serverSocket;
     private final int port;
-    private boolean running = true;
+    private boolean running = true;    // Para controlar o estado da comunicação do servidor
 
     public SocketServer(int port) {
         this.port = port;
@@ -23,11 +23,11 @@ public class SocketServer extends Thread {
 
     public synchronized void startServer() {
         try {
-            serverSocket = new ServerSocket(port);
-            serverSocket.setReuseAddress(true);
+            serverSocket = new ServerSocket(port);    // Cria um novo ServerSocket na porta especificada
+            serverSocket.setReuseAddress(true);    // Permite que o endereço de socket criado possa ser reutilizado
             System.out.println("Server listening on port " + port);
             while (running) {
-                Socket socket = serverSocket.accept();
+                Socket socket = serverSocket.accept();   // Aceita uma nova conexão de cliente
                 new Thread(() -> {
                     try {
                         System.out.println("Server accepted connection from " + socket.getRemoteSocketAddress() + " on thread" + Thread.currentThread().getName() );
@@ -42,31 +42,31 @@ public class SocketServer extends Thread {
         }
     }
 
-    public void handleClient(Socket socket) throws IOException {
-        ObjectOutputStream out = new ObjectOutputStream(socket.getOutputStream());
-        ObjectInputStream in = new ObjectInputStream(socket.getInputStream());
-        while(running){
+    public void handleClient(Socket socket) throws IOException {        //Metodo que lidar com o cliente
+        ObjectOutputStream out = new ObjectOutputStream(socket.getOutputStream());  // Cria um fluxo de saída para o cliente
+        ObjectInputStream in = new ObjectInputStream(socket.getInputStream());    // Cria um fluxo de entrada do cliente
+        while(running){     // Loop que continua enquanto o servidor está em execução
             try {
                 MessageWrapper message = (MessageWrapper) in.readObject();
                 switch (message.getCommand()) {
-                    case Command.WordSearchMessage:{
-                        WordSearchMessage data =  (WordSearchMessage)  message.getData();
-                        List<FileManager> searchResult =  data.search();
-                        FileSearchResult[] result = new FileSearchResult[searchResult.size()];
-                        for(int i = 0; i < searchResult.size(); i++){
-                            result[i] = new FileSearchResult(data, searchResult.get(i), message.getReceiver() ,socket.getPort());
+                    case Command.WordSearchMessage:{    // Para a busca de palavras
+                        WordSearchMessage data =  (WordSearchMessage)  message.getData();    // Obtém os dados da mensagem
+                        List<FileManager> searchResult =  data.search();      // Realiza a busca e obtém os resultados
+                        FileSearchResult[] result = new FileSearchResult[searchResult.size()];     // Cria um array para os resultados da busca
+                        for(int i = 0; i < searchResult.size(); i++){        // Loop pelos resultados da busca
+                            result[i] = new FileSearchResult(data, searchResult.get(i), message.getReceiver() ,socket.getPort());       // Cria um resultado de busca para cada item encontrado
                         }
-                        out.writeObject(new MessageWrapper(message.getReceiver(),Command.FileSearchResult ,result));
-                        break;
+                        out.writeObject(new MessageWrapper(message.getReceiver(),Command.FileSearchResult ,result));    // Envia os resultados de volta para o cliente
+                        break; // Sai do switch
                     }
-                    case Command.Terminate:{
+                    case Command.Terminate:{   // Para terminar a comunicação
                         return;
                     }
-                    case Command.String:{
+                    case Command.String:{     // Para tratamento de Strings
                         out.writeObject(message);
                         break;
                     }
-                    default:{
+                    default:{      // Para comandos desconhecidos
                         System.out.println("Unknown command");
                         break;
                     }
@@ -80,9 +80,9 @@ public class SocketServer extends Thread {
     }
 
     public synchronized void socketStop() throws IOException {
-        this.running = false;
-        //notifyAll();
-        this.serverSocket.close();
+        this.running = false;   // Altera o estado do servidor para "já não estou em execução"
+        //notifyAll();  // Não é necessário notificar todas as Threads (?sasha?)
+        this.serverSocket.close();   // Fecha o socket do servidor
         System.out.println("Connection closed server ");
     }
 }
