@@ -18,7 +18,7 @@ class FileBlock implements Serializable {
 
     public void hashblock(File file) {
         try (RandomAccessFile fileStream = new RandomAccessFile(file, "r")) {  // Cria um arquivo de leitura
-            int length = (Math.min(this.endByte - this.startByte, firstbytestohash));
+            int length = (Math.min(this.endByte - this.startByte, 1000));
             byte[] bytes = new byte[length];
             fileStream.seek(this.startByte);  // Move o ponteiro do arquivo para o início do bloco
             fileStream.readFully(bytes);  // Lê o bloco de bytes do arquivo
