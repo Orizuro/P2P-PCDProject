@@ -10,7 +10,7 @@ import java.util.List;
 
 public class ClientManager {
     private final List<ClientThread> clientThreads;
-    private final List<FileSearchResult[]> data;
+    private List<FileSearchResult[]> data;
 
     public ClientManager() {
         clientThreads = new ArrayList<>();
@@ -26,6 +26,7 @@ public class ClientManager {
     }
 
     public synchronized void sendAll(Command command, Object message) { //Manda mensagem para todos os clients
+        data = new ArrayList<>();
         for (ClientThread clientThread : clientThreads) {
             try {
                 clientThread.sendObject(command, message);
@@ -59,4 +60,5 @@ public class ClientManager {
 
         return this.data;
     }
+
 }

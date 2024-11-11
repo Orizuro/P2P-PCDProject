@@ -1,8 +1,17 @@
 package GUI;
 
+import Client.ClientManager;
+import Client.ClientThread;
+import Communication.Command;
+import Search.FileSearchResult;
+import Search.WordSearchMessage;
+import Server.RunnableSocketServer;
+import Server.SocketServer;
+
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.util.List;
 
 import javax.swing.*;
 
@@ -10,8 +19,10 @@ public class MainInterface {
 
     private JFrame frame;
     private DefaultListModel<String> searchResultsModel; // Modelo para a JList
+    ClientManager clientManager;
 
-    public MainInterface() {
+    public MainInterface(ClientManager clientManage) {
+        clientManager = clientManage;
         frame = new JFrame();
         frame.setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE); // para que o botao de fechar a janela termine a aplicacao
         addFrameContent();
@@ -73,9 +84,46 @@ public class MainInterface {
         buttonSearch.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                String searchTerm = message.getText();
-                // (...)
+                searchResultsModel.clear();
 
+                String searchTerm = message.getText().trim();
+
+
+                clientManager.sendAll(Command.WordSearchMessage, new WordSearchMessage(searchTerm));
+
+                buttonSearch.setEnabled(false);
+
+                SwingWorker<Void, FileSearchResult> worker = new SwingWorker<>() {
+                    @Override
+                    protected Void doInBackground() throws Exception {
+                        Thread.sleep(500);
+
+                        List<FileSearchResult[]> list = clientManager.getData();
+
+                        for (FileSearchResult[] resultsArray : list) {
+                            for (FileSearchResult result : resultsArray) {
+                                publish(result);
+                            }
+                        }
+                        return null;
+                    }
+
+                    @Override
+                    protected void process(List<FileSearchResult> chunks) {
+
+                        for (FileSearchResult result : chunks) {
+                            searchResultsModel.addElement(result.toString());
+                        }
+                    }
+
+                    @Override
+                    protected void done() {
+                        buttonSearch.setEnabled(true);
+                    }
+                };
+
+                // Execute the worker
+                worker.execute();
             }
         });
 
@@ -106,7 +154,14 @@ public class MainInterface {
 
 
     public static void main(String[] args) {
-        MainInterface gui = new MainInterface();
+        SocketServer server =new SocketServer(6666);
+        Thread thread_server = new Thread(new RunnableSocketServer(server));
+        thread_server.start();
+        ClientManager clientManager = new ClientManager();
+        ClientThread client1 = new ClientThread(clientManager, "127.0.0.1", 6666, "Client1");
+        ClientThread client2 = new ClientThread(clientManager, "127.0.0.1", 6666, "Client2");
+        ClientThread client3 = new ClientThread(clientManager, "127.0.0.1", 6666, "Client3");
+        MainInterface gui = new MainInterface(clientManager);
         gui.open();
     }
 

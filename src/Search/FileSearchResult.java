@@ -17,9 +17,17 @@ public class FileSearchResult implements Serializable {
         this.ip = ip;
         this.port = port;
     }
+    @Override
+    public String toString() {
+        return (fileManager.name);
+    }
 
+    /*
+    Debug porpose
     @Override
     public String toString() {
         return ( "Word:" + wordSearchMessage.getMessage() + " |Hash:" + fileManager.filehash + " |FileSize:" + fileManager.fileSize + " |FileName:" + fileManager.name + " |IP:" + ip + " |Port:" + port  );
     }
+
+     */
 }

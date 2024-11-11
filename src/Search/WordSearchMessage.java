@@ -26,7 +26,8 @@ public class WordSearchMessage implements Serializable {
             if (!file.getName().endsWith(".ser")){
                 int occurrences = countOccurrences(file.getName());
                 FileManager info = new FileManager(file);
-                occurrenceMap.put(occurrences,info);
+                if(occurrences != 0)
+                    occurrenceMap.put(occurrences,info);
             }
         }
 
