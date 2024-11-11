@@ -34,11 +34,11 @@ public class MainInterface {
         JPanel topPanel = new JPanel(new GridLayout(1,3)); //para ficar centrado como o exemplo dado pelo prof tem que se usar a GridLayout, embora também possamos usar aqui a BorderLayout e ficaria melhor visualmente
 
             JLabel instructionsSearchWindow = new JLabel("Texto a procurar: ");
-            JTextField textSearchWindow = new JTextField(" ");
+            JTextField message = new JTextField(" ");
             JButton buttonSearch = new JButton("Procurar");
 
             topPanel.add(instructionsSearchWindow, BorderLayout.WEST);
-            topPanel.add(textSearchWindow, BorderLayout.CENTER);
+            topPanel.add(message, BorderLayout.CENTER);
             topPanel.add(buttonSearch, BorderLayout.EAST);
 
         frame.add(topPanel, BorderLayout.NORTH);
@@ -73,7 +73,7 @@ public class MainInterface {
         buttonSearch.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                String searchTerm = textSearchWindow.getText();
+                String searchTerm = message.getText();
                 // (...)
 
             }

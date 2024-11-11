@@ -1,4 +1,4 @@
-package NameNotFound;
+package Search;
 
 import Communication.GlobalConfig;
 import Files.FileManager;
@@ -8,14 +8,14 @@ import java.io.Serializable;
 import java.util.*;
 
 public class WordSearchMessage implements Serializable {
-    private final String word;
+    private final String message;
 
-    public WordSearchMessage(String word) {
-        this.word = word;
+    public WordSearchMessage(String text) {
+        this.message = text;
     }
 
-    public String getWord(){
-        return this.word;
+    public String getMessage(){
+        return this.message;
     }
 
 
@@ -35,11 +35,11 @@ public class WordSearchMessage implements Serializable {
 
     public int countOccurrences(String text) {
         int n = text.length();
-        int m = this.word.length();
+        int m = this.message.length();
         int count = 0;
 
         for (int s = 0; s <= n - m; s++) {
-            if (text.substring(s, s + m).equals(this.word)) {
+            if (text.substring(s, s + m).equals(this.message)) {
                 count++;
             }
         }

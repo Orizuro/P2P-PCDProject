@@ -1,10 +1,9 @@
 import Client.ClientManager;
 import Client.ClientThread;
-import Client.SocketClient;
 import Communication.Command;
 import Files.FileManager;
-import NameNotFound.FileSearchResult;
-import NameNotFound.WordSearchMessage;
+import Search.FileSearchResult;
+import Search.WordSearchMessage;
 import Server.RunnableSocketServer;
 import Server.SocketServer;
 

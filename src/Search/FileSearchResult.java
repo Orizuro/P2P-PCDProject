@@ -1,4 +1,4 @@
-package NameNotFound;
+package Search;
 
 import Files.FileManager;
 
@@ -20,6 +20,6 @@ public class FileSearchResult implements Serializable {
 
     @Override
     public String toString() {
-        return ( "Word:" + wordSearchMessage.getWord() + " |Hash:" + fileManager.filehash + " |FileSize:" + fileManager.fileSize + " |FileName:" + fileManager.name + " |IP:" + ip + " |Port:" + port  );
+        return ( "Word:" + wordSearchMessage.getMessage() + " |Hash:" + fileManager.filehash + " |FileSize:" + fileManager.fileSize + " |FileName:" + fileManager.name + " |IP:" + ip + " |Port:" + port  );
     }
 }

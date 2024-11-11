@@ -7,9 +7,8 @@ import java.util.List;
 import Communication.Command;
 import Communication.MessageWrapper;
 import Files.FileManager;
-import NameNotFound.FileSearchResult;
-import NameNotFound.WordSearchMessage;
-import NameNotFound.WordSearchResult;
+import Search.FileSearchResult;
+import Search.WordSearchMessage;
 
 public class SocketServer extends Thread {
 

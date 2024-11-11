@@ -2,7 +2,7 @@ package Client;
 
 import Communication.Command;
 import Communication.MessageWrapper;
-import NameNotFound.FileSearchResult;
+import Search.FileSearchResult;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -25,7 +25,7 @@ public class ClientManager {
         clientThreads.remove(clientThread);
     }
 
-    public synchronized void sendAll(Command command, Object message) {
+    public synchronized void sendAll(Command command, Object message) { //Manda mensagem para todos os clients
         for (ClientThread clientThread : clientThreads) {
             try {
                 clientThread.sendObject(command, message);

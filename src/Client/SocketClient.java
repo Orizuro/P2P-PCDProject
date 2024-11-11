@@ -4,8 +4,6 @@ import java.io.*;
 import java.net.*;
 import Communication.Command;
 import Communication.MessageWrapper;
-import NameNotFound.FileSearchResult;
-import NameNotFound.WordSearchMessage;
 
 import static Communication.Command.Terminate;
 
