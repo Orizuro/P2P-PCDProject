@@ -1,5 +1,8 @@
 package GUI;
 
+import Client.ClientManager;
+import Client.ClientThread;
+
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
@@ -24,6 +27,9 @@ public class PopUpInterface {
         frame.setVisible(true);
     }
 
+    private final String addressInstructions = "Endereço: ";
+    private final String portInstructions = "Porta: ";
+    ClientManager clientManager = new ClientManager();
 
     private void addPopUpFrameContent() {
 
@@ -31,13 +37,13 @@ public class PopUpInterface {
 
         JPanel centralPanel = new JPanel(new FlowLayout()); //para ficar centrado como o exemplo dado pelo prof tem que se usar a GridLayout, embora também possamos usar aqui a BorderLayout e ficaria melhor visualmente
 
-        JLabel adress = new JLabel("Endereço: ");
+        JLabel address = new JLabel(addressInstructions);
         JTextField adressSearchWindow = new JTextField(20);
 
-        centralPanel.add(adress);
+        centralPanel.add(address);
         centralPanel.add(adressSearchWindow);
 
-        JLabel port = new JLabel("Porta: ");
+        JLabel port = new JLabel(portInstructions);
         JTextField portSearchWindow = new JTextField(6);
 
         centralPanel.add(port);
@@ -61,21 +67,20 @@ public class PopUpInterface {
         });
 
 
+
         // Action Listener do Botão "OK"
         buttonOK.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                String adress = adressSearchWindow.getText();
-                int port = Integer.parseInt(portSearchWindow.getText());
-                // (...)
+                String address = adressSearchWindow.getText();
+                int node = Integer.parseInt(portSearchWindow.getText());
+                if (address != null && node >= 0) {
+                    ClientThread client1 = new ClientThread(clientManager, address, node, Thread.currentThread().getName());
+                } else {
+                    JOptionPane.showMessageDialog(frame, "Foram inseridos dados incorretos, por favor tente novamente.");
+                }
             }
         });
-    }
-
-
-    public static void main(String[] args) {
-        PopUpInterface gui = new PopUpInterface();
-        gui.open();
     }
 
 }

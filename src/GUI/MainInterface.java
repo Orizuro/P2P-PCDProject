@@ -1,5 +1,10 @@
 package GUI;
 
+import Client.ClientManager;
+import Client.SocketClient;
+import Communication.Command;
+import Search.FileSearchResult;
+
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -25,6 +30,10 @@ public class MainInterface {
         frame.setVisible(true);
     }
 
+    private final String instructions = "Texto a procurar: ";
+    private String searchTerm = null;
+    private final String button = "Procurar";
+    ClientManager clientManager = new ClientManager();
 
     private void addFrameContent() {
 
@@ -33,9 +42,9 @@ public class MainInterface {
         // Layout do Painel superior
         JPanel topPanel = new JPanel(new GridLayout(1,3)); //para ficar centrado como o exemplo dado pelo prof tem que se usar a GridLayout, embora também possamos usar aqui a BorderLayout e ficaria melhor visualmente
 
-            JLabel instructionsSearchWindow = new JLabel("Texto a procurar: ");
-            JTextField message = new JTextField(" ");
-            JButton buttonSearch = new JButton("Procurar");
+            JLabel instructionsSearchWindow = new JLabel(instructions);
+            JTextField message = new JTextField(searchTerm);
+            JButton buttonSearch = new JButton(button);
 
             topPanel.add(instructionsSearchWindow, BorderLayout.WEST);
             topPanel.add(message, BorderLayout.CENTER);
@@ -47,8 +56,8 @@ public class MainInterface {
         // Layout do Painel lateral esquerdo e central
         JPanel leftPanel = new JPanel(new BorderLayout());
 
-        searchResultsModel = new DefaultListModel<>();
-        JList<String> searchResultsList = new JList<>(searchResultsModel);
+        searchResultsModel = new DefaultListModel<>();      // TODO
+        JList<String> searchResultsList = new JList<>(searchResultsModel);      // TODO
 
         JScrollPane scrollPane = new JScrollPane(searchResultsList);
         leftPanel.add(scrollPane, BorderLayout.CENTER);
@@ -73,9 +82,12 @@ public class MainInterface {
         buttonSearch.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                String searchTerm = message.getText();
-                // (...)
-
+                searchTerm = message.getText();
+                if (searchTerm != null) {
+                    clientManager.sendAll(Command.WordSearchMessage, searchTerm);
+                } else {
+                    JOptionPane.showMessageDialog(frame, "Identifique o nome do ficheiro pretendido primeiro.");
+                }
             }
         });
 
@@ -85,8 +97,9 @@ public class MainInterface {
             @Override
             public void actionPerformed(ActionEvent e) {
                 String selectedFile = searchResultsList.getSelectedValue();
-                if (selectedFile != null) {
-                    // (...)
+                if (selectedFile != null){
+
+
                 } else {
                     JOptionPane.showMessageDialog(frame, "Selecione um ficheiro primeiro.");
                 }
@@ -98,7 +111,8 @@ public class MainInterface {
         buttonNode.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                PopUpInterface.main(null);
+                PopUpInterface guiPopUp = new PopUpInterface();
+                guiPopUp.open();
             }
         });        
         

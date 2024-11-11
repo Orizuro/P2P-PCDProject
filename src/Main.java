@@ -2,6 +2,7 @@ import Client.ClientManager;
 import Client.ClientThread;
 import Communication.Command;
 import Files.FileManager;
+import GUI.MainInterface;
 import Search.FileSearchResult;
 import Search.WordSearchMessage;
 import Server.RunnableSocketServer;
@@ -12,6 +13,8 @@ import java.io.IOException;
 
 public class Main {
     public static void main(String[] args) throws IOException, InterruptedException {
+        MainInterface gui = new MainInterface();
+        gui.open();
         //Files.FileManager fileManager = new Files.FileManager("./img.png");
         //fileManager.readAllFiles();
         //fileManager.splitFile();
@@ -57,7 +60,7 @@ public class Main {
             System.out.println("Main thread interrupted.");
         }
         //Client Portion
-        System.out.println("Main thread asking clientmanager");
+        System.out.println("Main thread asking ClientManager");
         for (FileSearchResult[] file : clientManager.getData()) {
             for(FileSearchResult result : file) {
                 System.out.println(result.toString());
