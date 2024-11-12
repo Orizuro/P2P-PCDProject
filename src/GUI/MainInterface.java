@@ -41,11 +41,6 @@ public class MainInterface {
         frame.setVisible(true);
     }
 
-    private final String instructions = "Texto a procurar: ";
-    private String searchTerm = null;
-    private final String button = "Procurar";
-    //ClientManager clientManager = new ClientManager();
-
     private void addFrameContent() {
 
         frame.setLayout(new BorderLayout());
@@ -88,27 +83,19 @@ public class MainInterface {
         frame.add(rightPanel, BorderLayout.EAST);
 
 
-
         // Action Listener do Botão "Procurar"
         buttonSearch.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
                 searchResultsModel.clear();
-
                 String searchTerm = message.getText().trim();
-
-
                 clientManager.sendAll(Command.WordSearchMessage, new WordSearchMessage(searchTerm));
-
                 buttonSearch.setEnabled(false);
-
                 SwingWorker<Void, FileSearchResult> worker = new SwingWorker<>() {
                     @Override
                     protected Void doInBackground() throws Exception {
                         Thread.sleep(500);
-
                         List<FileSearchResult[]> list = clientManager.getData();
-
                         for (FileSearchResult[] resultsArray : list) {
                             for (FileSearchResult result : resultsArray) {
                                 publish(result);
@@ -116,7 +103,6 @@ public class MainInterface {
                         }
                         return null;
                     }
-
                     @Override
                     protected void process(List<FileSearchResult> chunks) {
 
@@ -124,7 +110,6 @@ public class MainInterface {
                             searchResultsModel.addElement(result.toString());
                         }
                     }
-
                     @Override
                     protected void done() {
                         buttonSearch.setEnabled(true);
@@ -171,7 +156,6 @@ public class MainInterface {
         MainInterface gui = new MainInterface(clientManager);
         gui.open();
     }
-
 
 
 }
