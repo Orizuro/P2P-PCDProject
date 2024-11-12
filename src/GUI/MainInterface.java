@@ -8,6 +8,11 @@ import Search.WordSearchMessage;
 import Server.RunnableSocketServer;
 import Server.SocketServer;
 
+import Client.ClientManager;
+import Client.SocketClient;
+import Communication.Command;
+import Search.FileSearchResult;
+
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -22,7 +27,7 @@ public class MainInterface {
     ClientManager clientManager;
 
     public MainInterface(ClientManager clientManage) {
-        clientManager = clientManage;
+        this.clientManager = clientManage;
         frame = new JFrame();
         frame.setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE); // para que o botao de fechar a janela termine a aplicacao
         addFrameContent();
@@ -36,6 +41,10 @@ public class MainInterface {
         frame.setVisible(true);
     }
 
+    private final String instructions = "Texto a procurar: ";
+    private String searchTerm = null;
+    private final String button = "Procurar";
+    //ClientManager clientManager = new ClientManager();
 
     private void addFrameContent() {
 
@@ -45,7 +54,7 @@ public class MainInterface {
         JPanel topPanel = new JPanel(new GridLayout(1,3)); //para ficar centrado como o exemplo dado pelo prof tem que se usar a GridLayout, embora também possamos usar aqui a BorderLayout e ficaria melhor visualmente
 
             JLabel instructionsSearchWindow = new JLabel("Texto a procurar: ");
-            JTextField message = new JTextField(" ");
+            JTextField message = new JTextField("");
             JButton buttonSearch = new JButton("Procurar");
 
             topPanel.add(instructionsSearchWindow, BorderLayout.WEST);
@@ -146,7 +155,8 @@ public class MainInterface {
         buttonNode.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                PopUpInterface.main(null);
+                PopUpInterface guiPopUp = new PopUpInterface(clientManager);
+                guiPopUp.open();
             }
         });        
         
@@ -158,9 +168,6 @@ public class MainInterface {
         Thread thread_server = new Thread(new RunnableSocketServer(server));
         thread_server.start();
         ClientManager clientManager = new ClientManager();
-        ClientThread client1 = new ClientThread(clientManager, "127.0.0.1", 6666, "Client1");
-        ClientThread client2 = new ClientThread(clientManager, "127.0.0.1", 6666, "Client2");
-        ClientThread client3 = new ClientThread(clientManager, "127.0.0.1", 6666, "Client3");
         MainInterface gui = new MainInterface(clientManager);
         gui.open();
     }
