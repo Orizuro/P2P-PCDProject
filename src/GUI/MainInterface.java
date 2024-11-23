@@ -105,7 +105,6 @@ public class MainInterface {
                     }
                     @Override
                     protected void process(List<FileSearchResult> chunks) {
-
                         for (FileSearchResult result : chunks) {
                             searchResultsModel.addElement(result.toString());
                         }
@@ -129,6 +128,7 @@ public class MainInterface {
                 String selectedFile = searchResultsList.getSelectedValue();
                 if (selectedFile != null) {
                     // (...)
+                    JOptionPane.showMessageDialog(frame, "Ficheiro descarregado com sucesso");
                 } else {
                     JOptionPane.showMessageDialog(frame, "Selecione um ficheiro primeiro.");
                 }
@@ -143,8 +143,7 @@ public class MainInterface {
                 PopUpInterface guiPopUp = new PopUpInterface(clientManager);
                 guiPopUp.open();
             }
-        });        
-        
+        });
     }
 
 

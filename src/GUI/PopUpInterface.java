@@ -7,6 +7,9 @@ import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+import java.util.regex.PatternSyntaxException;
 
 public class PopUpInterface {
 
@@ -19,7 +22,7 @@ public class PopUpInterface {
         frame = new JFrame();
         frame.setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE); // para que o botao de fechar a janela termine a aplicacao
         addPopUpFrameContent();
-        frame.setSize(590,90); // janela com um tamanho fixo
+        frame.setSize(590,90); // janela com um tamanho fixo inicial
         frame.setLocationRelativeTo(null); //para centrar a janela
     }
 
@@ -69,20 +72,40 @@ public class PopUpInterface {
         });
 
 
-
         // Action Listener do Botão "OK"
         buttonOK.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
                 String address = adressSearchWindow.getText();
-                int node = Integer.parseInt(portSearchWindow.getText());
-                if (address != null && node >= 0) {
-                    ClientThread client1 = new ClientThread(clientManager, address, node, Thread.currentThread().getName());
+                int port = Integer.parseInt(portSearchWindow.getText());
+                if (validIP(address) && port >= 0) {
+                    ClientThread client1 = new ClientThread(clientManager, address, port, Thread.currentThread().getName());
+                    frame.dispose();
+                    JOptionPane.showMessageDialog(frame, "A ligação foi efetuada com sucesso.");
                 } else {
+                    //System.out.println(address);
                     JOptionPane.showMessageDialog(frame, "Foram inseridos dados incorretos, por favor tente novamente.");
                 }
             }
         });
     }
+
+    public static boolean validIP(String ip) {
+        if (ip == null || ip.isEmpty()) {
+            return false;
+        }
+        ip = ip.trim();
+        if ((ip.length() < 6) || (ip.length() > 15)) {
+            return false;
+        }
+        try {
+            Pattern pattern = Pattern.compile("^(?:(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\\.){3}(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)$");
+            Matcher matcher = pattern.matcher(ip);
+            return matcher.matches();
+        } catch (PatternSyntaxException ex) {
+            return false;
+        }
+    }
+
 
 }
