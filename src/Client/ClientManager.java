@@ -5,20 +5,19 @@ import Communication.MessageWrapper;
 import Search.FileSearchResult;
 
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.*;
 
 public class ClientManager {
-    private final List<ClientThread> clientThreads;
-    private List<FileSearchResult[]> data;
+    private final Map<ClientThread, Boolean> clientThreads;
+    private HashMap<String, List<FileSearchResult>> FileSearchDB;
 
     public ClientManager() {
-        clientThreads = new ArrayList<>();
-        data = new ArrayList<>();
+        this.clientThreads = new TreeMap<>();
+        this.FileSearchDB = new HashMap<String, List<FileSearchResult>>();
     }
 
     public synchronized void addClientThread(ClientThread clientThread) {
-        clientThreads.add(clientThread);
+        clientThreads.put(clientThread, false);
     }
 
     public synchronized void removeClientThread(ClientThread clientThread) {
@@ -26,9 +25,9 @@ public class ClientManager {
     }
 
     public synchronized void sendAll(Command command, Object message) { //Manda mensagem para todos os clients
-        data = new ArrayList<>();
-        for (ClientThread clientThread : clientThreads) {
+        for (ClientThread clientThread : clientThreads.keySet()) {
             try {
+                clientThreads.replace(clientThread, true);
                 clientThread.sendObject(command, message);
             } catch (InterruptedException e) {
                 System.out.println("Error sending message to " + clientThread.getClientName() + ": " + e.getMessage());
@@ -38,15 +37,14 @@ public class ClientManager {
         }
     }
 
-    public synchronized void receiveAll(MessageWrapper message) {
+    public synchronized void receive(MessageWrapper message, ClientThread clientThread) {
+        clientThreads.replace(clientThread, false);
         switch (message.getCommand()) {
             case Command.FileSearchResult: {
                 FileSearchResult[] received = (FileSearchResult[])  message.getData();
-                this.data.add(received);
                 for (FileSearchResult file : received) {
-                    System.out.println(file.toString());
+                    addToFileSearchResult(file);
                 }
-                System.out.println(Thread.currentThread().getName());
                 break;
             }
             default: {
@@ -56,9 +54,24 @@ public class ClientManager {
         }
     }
 
-    public synchronized List<FileSearchResult[]> getData() {
+    public synchronized HashMap<String, List<FileSearchResult>> getData() {
+        return this.FileSearchDB;
+    }
 
-        return this.data;
+    private void addToFileSearchResult(FileSearchResult file) {
+        if(this.FileSearchDB.containsKey(file.getFileInfo().filehash)){
+            this.FileSearchDB.get(file.getFileInfo().filehash).add(file);
+        }else{
+            this.FileSearchDB.put(file.getFileInfo().filehash, new ArrayList<FileSearchResult>() {{ add(file);}});
+        }
+    }
+
+    public void resetFileSearchDB(){
+        this.FileSearchDB.clear();
+    }
+
+    public boolean isWaiting() {
+        return clientThreads.containsValue(true);
     }
 
 }

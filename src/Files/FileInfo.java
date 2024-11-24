@@ -7,7 +7,7 @@ import java.nio.file.Files;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 
-public class FileManager implements Serializable {
+public class FileInfo implements Serializable {
     public String name;
     public String filehash; // Array que armazena o hash do arquivo
     int blockNumber; // Número de blocos que o arquivo será dividido
@@ -15,7 +15,7 @@ public class FileManager implements Serializable {
     FileBlock[] fileBlocks = null;
     final int blocksize = 102400;
 
-    public FileManager(File file){
+    public FileInfo(File file){
          File save = new File( file + ".ser");
          if(file.getName().endsWith(".ser") || file.isDirectory()){ // Verifica se o arquivo é um .ser ou um diretório
              return;
@@ -24,7 +24,7 @@ public class FileManager implements Serializable {
              try {
                  // Cria um fluxo de entrada para ler o arquivo save
                  ObjectInputStream objectInputStream = new ObjectInputStream(new FileInputStream(save));
-                 FileManager restoredFileManager = (FileManager) objectInputStream.readObject();
+                 FileInfo restoredFileManager = (FileInfo) objectInputStream.readObject();
                  this.name = restoredFileManager.name;
                  this.fileSize = restoredFileManager.fileSize;
                  this.blockNumber = restoredFileManager.blockNumber;

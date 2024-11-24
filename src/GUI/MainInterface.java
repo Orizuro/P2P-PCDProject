@@ -16,9 +16,12 @@ import Search.FileSearchResult;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.util.HashMap;
 import java.util.List;
 
 import javax.swing.*;
+
+import static java.lang.Thread.sleep;
 
 public class MainInterface {
 
@@ -87,31 +90,35 @@ public class MainInterface {
         buttonSearch.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                searchResultsModel.clear();
                 String searchTerm = message.getText().trim();
+                if(searchTerm.isEmpty()) {
+                    return;
+                }
+                searchResultsModel.clear();
+                clientManager.resetFileSearchDB();
                 clientManager.sendAll(Command.WordSearchMessage, new WordSearchMessage(searchTerm));
                 buttonSearch.setEnabled(false);
-                SwingWorker<Void, FileSearchResult> worker = new SwingWorker<>() {
+
+                SwingWorker<Void, Void> worker = new SwingWorker<>() {
                     @Override
                     protected Void doInBackground() throws Exception {
-                        Thread.sleep(500);
-                        List<FileSearchResult[]> list = clientManager.getData();
-                        for (FileSearchResult[] resultsArray : list) {
-                            for (FileSearchResult result : resultsArray) {
-                                publish(result);
-                            }
+                        while (clientManager.isWaiting()) {
+                            sleep(100);
                         }
+                        Thread.sleep(1000);
                         return null;
                     }
                     @Override
-                    protected void process(List<FileSearchResult> chunks) {
-
-                        for (FileSearchResult result : chunks) {
-                            searchResultsModel.addElement(result.toString());
-                        }
-                    }
-                    @Override
                     protected void done() {
+                        HashMap<String, List<FileSearchResult>> data = clientManager.getData();
+                        if(data.isEmpty()) {
+                            searchResultsModel.addElement("Ficheiro não encontrado");
+                            buttonSearch.setEnabled(true);
+                            return;
+                        }
+                        for(List<FileSearchResult> file : clientManager.getData().values()){
+                            searchResultsModel.addElement(file.getFirst().toString() + "<" + file.size() + ">");
+                        }
                         buttonSearch.setEnabled(true);
                     }
                 };

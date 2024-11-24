@@ -77,7 +77,7 @@ public class PopUpInterface {
                 String address = adressSearchWindow.getText();
                 int node = Integer.parseInt(portSearchWindow.getText());
                 if (address != null && node >= 0) {
-                    ClientThread client1 = new ClientThread(clientManager, address, node, Thread.currentThread().getName());
+                    ClientThread client1 = new ClientThread(clientManager, address, node);
                 } else {
                     JOptionPane.showMessageDialog(frame, "Foram inseridos dados incorretos, por favor tente novamente.");
                 }

@@ -1,8 +1,7 @@
 import Client.ClientManager;
 import Client.ClientThread;
 import Communication.Command;
-import Files.FileManager;
-import GUI.MainInterface;
+import Files.FileInfo;
 import Search.FileSearchResult;
 import Search.WordSearchMessage;
 import Server.RunnableSocketServer;
@@ -29,7 +28,7 @@ public class Main {
     }
     public synchronized static void testFiels() {
         File file = new File("./img.png");
-        FileManager fileManager = new FileManager(file);
+        FileInfo fileManager = new FileInfo(file);
 
     }
 
@@ -45,9 +44,9 @@ public class Main {
         ClientManager clientManager = new ClientManager();
 
         // Create and start client threads
-        ClientThread client1 = new ClientThread(clientManager, "127.0.0.1", 6666, "Client1");
-        ClientThread client2 = new ClientThread(clientManager, "127.0.0.1", 6666, "Client2");
-        ClientThread client3 = new ClientThread(clientManager, "127.0.0.1", 6666, "Client3");
+        ClientThread client1 = new ClientThread(clientManager, "127.0.0.1", 6666);
+        ClientThread client2 = new ClientThread(clientManager, "127.0.0.1", 6666);
+        ClientThread client3 = new ClientThread(clientManager, "127.0.0.1", 6666);
 
 
 
@@ -61,11 +60,14 @@ public class Main {
         }
         //Client Portion
         System.out.println("Main thread asking ClientManager");
+        /*
         for (FileSearchResult[] file : clientManager.getData()) {
             for(FileSearchResult result : file) {
                 System.out.println(result.toString());
             }
         }
+
+         */
         System.out.println(Thread.currentThread().getName());
 
     }

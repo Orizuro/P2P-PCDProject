@@ -24,7 +24,7 @@ public class SocketClient  {
     public synchronized void startSocket(){
         try{
             this.clientSocket = new Socket(ip, port);   // Conecta-se ao servidor com determinado IP e por uma determinada porta
-            System.out.println("Connected to " + ip + ":" + port);
+            System.out.println("Client connected to " + ip + ":" + port);
             this.out = new ObjectOutputStream(clientSocket.getOutputStream());  // Iniciado o fluxo de saída
             this.in = new ObjectInputStream(clientSocket.getInputStream());   // Iniciadlo o fluxo de entrada
             this.ready = true;  // Definida a conexão como pronta
@@ -39,6 +39,7 @@ public class SocketClient  {
         while (!ready) {    // Aguarda até que a conexão esteja pronta
             wait();
         }
+        System.out.println("Client sent message to " + ip + ":" + port);
         MessageWrapper message = new MessageWrapper(this.ip, command, object); // "Embrulha" e envia uma mensagem
         this.out.writeObject(message);   // Envia a mensagem
     }
@@ -47,7 +48,6 @@ public class SocketClient  {
         while (!ready) {
             wait();
         }
-        MessageWrapper message = null;
         try {
             return (MessageWrapper) in.readObject();
         } catch (ClassNotFoundException e) {

@@ -3,16 +3,17 @@ package Client;
 import Communication.Command;
 
 import java.io.IOException;
+import java.util.UUID;
 
-public class ClientThread extends Thread {
+public class ClientThread extends Thread implements Comparable<ClientThread> {
     private final SocketClient socketClient;
     private final String clientName; // Client's name for identification
     private final ClientManager clientManager; // Reference to the client manager
 
-    public ClientThread(ClientManager clientManager, String ip, int port, String clientName) {
+    public ClientThread(ClientManager clientManager, String ip, int port) {
         this.clientManager = clientManager;
         this.socketClient = new SocketClient(ip, port);
-        this.clientName = clientName;
+        this.clientName = UUID.randomUUID().toString();;
 
         // Register this thread with the client manager
         clientManager.addClientThread(this);
@@ -22,20 +23,15 @@ public class ClientThread extends Thread {
 
     @Override
     public void run() {
-         // Start the socket connection
         try {
             while (true) {
-                // Simulate listening for messages from the server
-                this.clientManager.receiveAll(socketClient.receiveObject());
-
-
+                this.clientManager.receive(socketClient.receiveObject(), this);
             }
         } catch (InterruptedException e) {
             System.out.println(clientName + " has been interrupted.");
         } catch (Exception e) {
             System.out.println("Error in " + clientName + ": " + e.getMessage());
         } finally {
-            // Remove this client thread from the manager when done
             clientManager.removeClientThread(this);
             try {
                 socketClient.stopConnection();
@@ -54,4 +50,11 @@ public class ClientThread extends Thread {
     public String getClientName() {
         return clientName;
     }
+
+    @Override
+    public int compareTo(ClientThread other) {
+        return this.clientName.compareTo(other.clientName);
+    }
+
+
 }
