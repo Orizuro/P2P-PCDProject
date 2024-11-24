@@ -7,7 +7,7 @@ import java.nio.file.Files;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 
-public class FileManager implements Serializable {
+public class FileSearchManager implements Serializable {
     public String name;
     public String filehash; // Array que armazena o hash do arquivo
     int blockNumber; // Número de blocos que o arquivo será dividido
@@ -15,7 +15,7 @@ public class FileManager implements Serializable {
     FileBlock[] fileBlocks = null;
     final int blocksize = 102400;
 
-    public FileManager(File file){
+    public FileSearchManager(File file){
          File save = new File( file + ".ser");
          if(file.getName().endsWith(".ser") || file.isDirectory()){ // Verifica se o arquivo é um .ser ou um diretório
              return;
@@ -24,12 +24,12 @@ public class FileManager implements Serializable {
              try {
                  // Cria um fluxo de entrada para ler o arquivo save
                  ObjectInputStream objectInputStream = new ObjectInputStream(new FileInputStream(save));
-                 FileManager restoredFileManager = (FileManager) objectInputStream.readObject();
-                 this.name = restoredFileManager.name;
-                 this.fileSize = restoredFileManager.fileSize;
-                 this.blockNumber = restoredFileManager.blockNumber;
-                 this.filehash = restoredFileManager.filehash;
-                 this.fileBlocks = restoredFileManager.fileBlocks;
+                 FileSearchManager restoredFileSearchManager = (FileSearchManager) objectInputStream.readObject();
+                 this.name = restoredFileSearchManager.name;
+                 this.fileSize = restoredFileSearchManager.fileSize;
+                 this.blockNumber = restoredFileSearchManager.blockNumber;
+                 this.filehash = restoredFileSearchManager.filehash;
+                 this.fileBlocks = restoredFileSearchManager.fileBlocks;
              }catch (Exception e){
                  System.out.println(e);
                  e.printStackTrace();
@@ -50,10 +50,10 @@ public class FileManager implements Serializable {
 
     void saveFileData(){
         try{
-            // Metodo para guardar os dados do FileManager num arquivo .ser
+            // Metodo para guardar os dados do FileSearchManager num arquivo .ser
             String filename = this.name;
             GlobalConfig gc = new GlobalConfig();
-            // Cria um fluxo de saída para guardar o objeto FileManager
+            // Cria um fluxo de saída para guardar o objeto FileSearchManager
             FileOutputStream fileOutputStream = new FileOutputStream(gc.getDefaultPath() + filename + ".ser");
             ObjectOutputStream objectOutputStream = new ObjectOutputStream(fileOutputStream);
             objectOutputStream.writeObject(this);  // Serializa e escreve o objeto no arquivo
