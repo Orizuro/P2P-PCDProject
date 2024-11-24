@@ -21,7 +21,7 @@ import java.util.List;
 import javax.swing.*;
 
 public class MainInterface {
-
+    
     private JFrame frame;
     private DefaultListModel<String> searchResultsModel; // Modelo para a JList
     ClientManager clientManager;
@@ -128,7 +128,7 @@ public class MainInterface {
                 String selectedFile = searchResultsList.getSelectedValue();
                 if (selectedFile != null) {
                     // (...)
-                    JOptionPane.showMessageDialog(frame, "Ficheiro descarregado com sucesso");
+                    JOptionPane.showMessageDialog(frame, "Download iniciado com sucesso.");
                 } else {
                     JOptionPane.showMessageDialog(frame, "Selecione um ficheiro primeiro.");
                 }
