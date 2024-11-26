@@ -1,29 +1,29 @@
 package Search;
 
-import Files.FileSearchManager;
+import Files.FileManager;
 
 import java.io.Serializable;
 
 public class FileSearchResult implements Serializable {
     private WordSearchMessage wordSearchMessage;
-    private FileSearchManager fileSearchManager;
+    private FileManager fileManager;
     private String ip;
     private int port;
 
 
-    public FileSearchResult(WordSearchMessage wordSearchMessage, FileSearchManager fileSearchManager, String ip, int port) {
+    public FileSearchResult(WordSearchMessage wordSearchMessage, FileManager fileManager, String ip, int port) {
         this.wordSearchMessage = wordSearchMessage;
-        this.fileSearchManager = fileSearchManager;
+        this.fileManager = fileManager;
         this.ip = ip;
         this.port = port;
     }
     @Override
     public String toString() {
-        return (fileSearchManager.name);
+        return (fileManager.name);
     }
 
-    public FileSearchManager getFileInfo() {
-        return fileSearchManager;
+    public FileManager getFileInfo() {
+        return fileManager;
     }
 
     /*

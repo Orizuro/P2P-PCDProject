@@ -7,7 +7,7 @@ import java.nio.file.Files;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 
-public class FileSearchManager implements Serializable {
+public class FileManager implements Serializable {
     public String name;
     public String filehash; // Array que armazena o hash do arquivo
     int blockNumber; // Número de blocos que o arquivo será dividido
@@ -15,7 +15,7 @@ public class FileSearchManager implements Serializable {
     FileBlock[] fileBlocks = null;
     final int blocksize = 102400;
 
-    public FileSearchManager(File file){
+    public FileManager(File file){
          File save = new File( file + ".ser");
          if(file.getName().endsWith(".ser") || file.isDirectory()){ // Verifica se o arquivo é um .ser ou um diretório
              return;
@@ -24,12 +24,12 @@ public class FileSearchManager implements Serializable {
              try {
                  // Cria um fluxo de entrada para ler o arquivo save
                  ObjectInputStream objectInputStream = new ObjectInputStream(new FileInputStream(save));
-                 FileSearchManager restoredFileSearchManager = (FileSearchManager) objectInputStream.readObject();
-                 this.name = restoredFileSearchManager.name;
-                 this.fileSize = restoredFileSearchManager.fileSize;
-                 this.blockNumber = restoredFileSearchManager.blockNumber;
-                 this.filehash = restoredFileSearchManager.filehash;
-                 this.fileBlocks = restoredFileSearchManager.fileBlocks;
+                 FileManager restoredFileManager = (FileManager) objectInputStream.readObject();
+                 this.name = restoredFileManager.name;
+                 this.fileSize = restoredFileManager.fileSize;
+                 this.blockNumber = restoredFileManager.blockNumber;
+                 this.filehash = restoredFileManager.filehash;
+                 this.fileBlocks = restoredFileManager.fileBlocks;
              }catch (Exception e){
                  System.out.println(e);
                  e.printStackTrace();
