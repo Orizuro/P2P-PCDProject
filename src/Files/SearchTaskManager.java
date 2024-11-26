@@ -7,15 +7,15 @@ import java.nio.file.Files;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 
-public class FileManager implements Serializable {
+public class SearchTaskManager implements Serializable {
     public String name;
     public String filehash; // Array que armazena o hash do arquivo
     int blockNumber; // Número de blocos que o arquivo será dividido
     public int fileSize;
-    FileBlock[] fileBlocks = null;
+    FileBlockManager[] fileBlockManagers = null;
     final int blocksize = 102400;
 
-    public FileManager(File file){
+    public SearchTaskManager(File file){
          File save = new File( file + ".ser");
          if(file.getName().endsWith(".ser") || file.isDirectory()){ // Verifica se o arquivo é um .ser ou um diretório
              return;
@@ -24,12 +24,12 @@ public class FileManager implements Serializable {
              try {
                  // Cria um fluxo de entrada para ler o arquivo save
                  ObjectInputStream objectInputStream = new ObjectInputStream(new FileInputStream(save));
-                 FileManager restoredFileManager = (FileManager) objectInputStream.readObject();
-                 this.name = restoredFileManager.name;
-                 this.fileSize = restoredFileManager.fileSize;
-                 this.blockNumber = restoredFileManager.blockNumber;
-                 this.filehash = restoredFileManager.filehash;
-                 this.fileBlocks = restoredFileManager.fileBlocks;
+                 SearchTaskManager restoredSearchTaskManager = (SearchTaskManager) objectInputStream.readObject();
+                 this.name = restoredSearchTaskManager.name;
+                 this.fileSize = restoredSearchTaskManager.fileSize;
+                 this.blockNumber = restoredSearchTaskManager.blockNumber;
+                 this.filehash = restoredSearchTaskManager.filehash;
+                 this.fileBlockManagers = restoredSearchTaskManager.fileBlockManagers;
              }catch (Exception e){
                  System.out.println(e);
                  e.printStackTrace();
@@ -41,7 +41,7 @@ public class FileManager implements Serializable {
              this.fileSize = (int) file.length();
              this.blockNumber = (int) Math.ceil( (double) fileSize / blocksize) ;  // Calcula o número de blocos
              this.filehash = getFileHash(file);   // Obtém o hash do arquivo
-             this.fileBlocks = new FileBlock[blockNumber];
+             this.fileBlockManagers = new FileBlockManager[blockNumber];
              splitFile(file);
              saveFileData();
          }
@@ -50,10 +50,10 @@ public class FileManager implements Serializable {
 
     void saveFileData(){
         try{
-            // Metodo para guardar os dados do FileManager num arquivo .ser
+            // Metodo para guardar os dados do SearchTaskManager num arquivo .ser
             String filename = this.name;
             GlobalConfig gc = new GlobalConfig();
-            // Cria um fluxo de saída para guardar o objeto FileManager
+            // Cria um fluxo de saída para guardar o objeto SearchTaskManager
             FileOutputStream fileOutputStream = new FileOutputStream(gc.getDefaultPath() + filename + ".ser");
             ObjectOutputStream objectOutputStream = new ObjectOutputStream(fileOutputStream);
             objectOutputStream.writeObject(this);  // Serializa e escreve o objeto no arquivo
@@ -95,8 +95,8 @@ public class FileManager implements Serializable {
         for(int i = 0; i < blockNumber ; i++ ){ // Itera sobre o número de blocos
             int start = i * blocksize == 0 ? 0 : i * blocksize + 1;  // Calcula o byte inicial do bloco
             int end = Math.min(blocksize * (i + 1), this.fileSize);  // Calcula o byte final do bloco
-            this.fileBlocks[i] = new FileBlock(start, end);  // Cria um novo FileBlock com os limites
-            this.fileBlocks[i].hashblock(file);  // Calcula o hash do bloco
+            this.fileBlockManagers[i] = new FileBlockManager(start, end);  // Cria um novo FileBlockManager com os limites
+            this.fileBlockManagers[i].hashblock(file);  // Calcula o hash do bloco
         }
     }
 

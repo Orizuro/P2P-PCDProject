@@ -6,7 +6,7 @@ import java.util.List;
 
 import Communication.Command;
 import Communication.MessageWrapper;
-import Files.FileManager;
+import Files.SearchTaskManager;
 import Search.FileSearchResult;
 import Search.WordSearchMessage;
 
@@ -51,7 +51,7 @@ public class SocketServer extends Thread {
                 switch (message.getCommand()) {
                     case Command.WordSearchMessage:{    // Para a busca de palavras
                         WordSearchMessage data =  (WordSearchMessage)  message.getData();    // Obtém os dados da mensagem
-                        List<FileManager> searchResult =  data.search();      // Realiza a busca e obtém os resultados
+                        List<SearchTaskManager> searchResult =  data.search();      // Realiza a busca e obtém os resultados
                         FileSearchResult[] result = new FileSearchResult[searchResult.size()];     // Cria um array para os resultados da busca
                         for(int i = 0; i < searchResult.size(); i++){        // Loop pelos resultados da busca
                             result[i] = new FileSearchResult(data, searchResult.get(i), message.getReceiver() ,socket.getPort());       // Cria um resultado de busca para cada item encontrado

@@ -6,12 +6,12 @@ import java.io.Serializable;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 
-class FileBlock implements Serializable {
+class FileBlockManager implements Serializable {
     int startByte;
     int endByte;
     byte[] hash;
 
-    FileBlock(int startByte, int endByte){
+    FileBlockManager(int startByte, int endByte){
         this.startByte = startByte;
         this.endByte = endByte;
     }

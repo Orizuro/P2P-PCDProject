@@ -1,7 +1,7 @@
 import Client.ClientManager;
 import Client.ClientThread;
 import Communication.Command;
-import Files.FileManager;
+import Files.SearchTaskManager;
 import Search.WordSearchMessage;
 import Server.RunnableSocketServer;
 import Server.SocketServer;
@@ -13,11 +13,11 @@ public class Main {
     public static void main(String[] args) throws IOException, InterruptedException {
         //MainInterface gui = new MainInterface();
         //gui.open();
-        //Files.FileManager fileManager = new Files.FileManager("./img.png");
+        //Files.SearchTaskManager fileManager = new Files.SearchTaskManager("./img.png");
         //fileManager.readAllFiles();
         //fileManager.splitFile();
         //fileManager.saveFileData();
-        //Files.FileManager fileManagers = new Files.FileManager(new File("./"));
+        //Files.SearchTaskManager fileManagers = new Files.SearchTaskManager(new File("./"));
         //System.out.println( fileManagers.fileBlocks[0].toString());
         Thread.sleep(2000);
         //testsocket();
@@ -27,7 +27,7 @@ public class Main {
     }
     public synchronized static void testFiels() {
         File file = new File("./img.png");
-        FileManager fileManager = new FileManager(file);
+        SearchTaskManager searchTaskManager = new SearchTaskManager(file);
 
     }
 

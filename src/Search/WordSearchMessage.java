@@ -1,7 +1,7 @@
 package Search;
 
 import Communication.GlobalConfig;
-import Files.FileManager;
+import Files.SearchTaskManager;
 
 import java.io.File;
 import java.io.Serializable;
@@ -19,13 +19,13 @@ public class WordSearchMessage implements Serializable {
     }
 
 
-    public List<FileManager> search(){
-        Map<Integer, FileManager> occurrenceMap = new TreeMap<Integer, FileManager>();
+    public List<SearchTaskManager> search(){
+        Map<Integer, SearchTaskManager> occurrenceMap = new TreeMap<Integer, SearchTaskManager>();
         File[] files = readAllFiles();
         for (File file : files) {
             if (!file.getName().endsWith(".ser")){
                 int occurrences = countOccurrences(file.getName());
-                FileManager info = new FileManager(file);
+                SearchTaskManager info = new SearchTaskManager(file);
                 if(occurrences != 0)
                     occurrenceMap.put(occurrences,info);
             }

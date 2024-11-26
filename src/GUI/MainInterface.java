@@ -152,7 +152,6 @@ public class MainInterface {
                 guiPopUp.open();
             }
         });
-
     }
 
 

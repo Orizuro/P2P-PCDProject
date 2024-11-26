@@ -1,36 +1,36 @@
 package Search;
 
-import Files.FileManager;
+import Files.SearchTaskManager;
 
 import java.io.Serializable;
 
 public class FileSearchResult implements Serializable {
     private WordSearchMessage wordSearchMessage;
-    private FileManager fileManager;
+    private SearchTaskManager searchTaskManager;
     private String ip;
     private int port;
 
 
-    public FileSearchResult(WordSearchMessage wordSearchMessage, FileManager fileManager, String ip, int port) {
+    public FileSearchResult(WordSearchMessage wordSearchMessage, SearchTaskManager searchTaskManager, String ip, int port) {
         this.wordSearchMessage = wordSearchMessage;
-        this.fileManager = fileManager;
+        this.searchTaskManager = searchTaskManager;
         this.ip = ip;
         this.port = port;
     }
     @Override
     public String toString() {
-        return (fileManager.name);
+        return (searchTaskManager.name);
     }
 
-    public FileManager getFileInfo() {
-        return fileManager;
+    public SearchTaskManager getFileInfo() {
+        return searchTaskManager;
     }
 
     /*
     Debug porpose
     @Override
     public String toString() {
-        return ( "Word:" + wordSearchMessage.getMessage() + " |Hash:" + fileManager.filehash + " |FileSize:" + fileManager.fileSize + " |FileName:" + fileManager.name + " |IP:" + ip + " |Port:" + port  );
+        return ( "Word:" + wordSearchMessage.getMessage() + " |Hash:" + searchTaskManager.filehash + " |FileSize:" + searchTaskManager.fileSize + " |FileName:" + searchTaskManager.name + " |IP:" + ip + " |Port:" + port  );
     }
 
      */
