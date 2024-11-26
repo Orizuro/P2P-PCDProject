@@ -80,7 +80,7 @@ public class PopUpInterface {
                 String address = adressSearchWindow.getText();
                 int port = Integer.parseInt(portSearchWindow.getText());
                 if (validIP(address) && port >= 0) {
-                    ClientThread client1 = new ClientThread(clientManager, address, port, Thread.currentThread().getName());
+                    ClientThread client1 = new ClientThread(clientManager, address, port);
                     frame.dispose();
                     JOptionPane.showMessageDialog(frame, "A ligação foi efetuada com sucesso.");
                 } else {

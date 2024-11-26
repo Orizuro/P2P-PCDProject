@@ -22,6 +22,10 @@ public class FileSearchResult implements Serializable {
         return (fileSearchManager.name);
     }
 
+    public FileSearchManager getFileInfo() {
+        return fileSearchManager;
+    }
+
     /*
     Debug porpose
     @Override
