@@ -1,8 +1,7 @@
 import Client.ClientManager;
 import Client.ClientThread;
 import Communication.Command;
-import Files.FileInfo;
-import Search.FileSearchResult;
+import Files.FileSearchManager;
 import Search.WordSearchMessage;
 import Server.RunnableSocketServer;
 import Server.SocketServer;
@@ -28,7 +27,7 @@ public class Main {
     }
     public synchronized static void testFiels() {
         File file = new File("./img.png");
-        FileInfo fileManager = new FileInfo(file);
+        FileSearchManager fileManager = new FileSearchManager(file);
 
     }
 

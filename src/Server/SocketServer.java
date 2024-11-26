@@ -2,12 +2,11 @@ package Server;
 
 import java.io.*;
 import java.net.*;
-import java.util.ArrayList;
 import java.util.List;
 
 import Communication.Command;
 import Communication.MessageWrapper;
-import Files.FileInfo;
+import Files.FileSearchManager;
 import Search.FileSearchResult;
 import Search.WordSearchMessage;
 
@@ -52,7 +51,7 @@ public class SocketServer extends Thread {
                 switch (message.getCommand()) {
                     case Command.WordSearchMessage:{    // Para a busca de palavras
                         WordSearchMessage data =  (WordSearchMessage)  message.getData();    // Obtém os dados da mensagem
-                        List<FileInfo> searchResult = data.search();      // Realiza a busca e obtém os resultados
+                        List<FileSearchManager> searchResult = data.search();      // Realiza a busca e obtém os resultados
                         FileSearchResult[] result = new FileSearchResult[searchResult.size()];     // Cria um array para os resultados da busca
                         // Loop pelos resultados da busca
                         for(int i = 0; i < searchResult.size(); i++){
