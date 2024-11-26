@@ -51,13 +51,13 @@ public class MainInterface {
         // Layout do Painel superior
         JPanel topPanel = new JPanel(new GridLayout(1,3)); //para ficar centrado como o exemplo dado pelo prof tem que se usar a GridLayout, embora também possamos usar aqui a BorderLayout e ficaria melhor visualmente
 
-            JLabel instructionsSearchWindow = new JLabel("Texto a procurar: ");
-            JTextField message = new JTextField("");
-            JButton buttonSearch = new JButton("Procurar");
+        JLabel instructionsSearchWindow = new JLabel("Texto a procurar: ");
+        JTextField message = new JTextField("");
+        JButton buttonSearch = new JButton("Procurar");
 
-            topPanel.add(instructionsSearchWindow, BorderLayout.WEST);
-            topPanel.add(message, BorderLayout.CENTER);
-            topPanel.add(buttonSearch, BorderLayout.EAST);
+        topPanel.add(instructionsSearchWindow, BorderLayout.WEST);
+        topPanel.add(message, BorderLayout.CENTER);
+        topPanel.add(buttonSearch, BorderLayout.EAST);
 
         frame.add(topPanel, BorderLayout.NORTH);
 
@@ -77,11 +77,11 @@ public class MainInterface {
         // Layout do Painel lateral direito
         JPanel rightPanel = new JPanel(new GridLayout(2,1));
 
-            JButton buttonDownload = new JButton("Descarregar");
-            JButton buttonNode = new JButton("Ligar a Nó");
+        JButton buttonDownload = new JButton("Descarregar");
+        JButton buttonNode = new JButton("Ligar a Nó");
 
-            rightPanel.add(buttonDownload, BorderLayout.NORTH);
-            rightPanel.add(buttonNode, BorderLayout.SOUTH);
+        rightPanel.add(buttonDownload, BorderLayout.NORTH);
+        rightPanel.add(buttonNode, BorderLayout.SOUTH);
 
         frame.add(rightPanel, BorderLayout.EAST);
 
@@ -136,6 +136,7 @@ public class MainInterface {
                 String selectedFile = searchResultsList.getSelectedValue();
                 if (selectedFile != null) {
                     // (...)
+                    JOptionPane.showMessageDialog(frame, "Download iniciado com sucesso.");
                 } else {
                     JOptionPane.showMessageDialog(frame, "Selecione um ficheiro primeiro.");
                 }
@@ -150,8 +151,8 @@ public class MainInterface {
                 PopUpInterface guiPopUp = new PopUpInterface(clientManager);
                 guiPopUp.open();
             }
-        });        
-        
+        });
+
     }
 
 

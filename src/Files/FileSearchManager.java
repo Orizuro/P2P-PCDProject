@@ -24,12 +24,12 @@ public class FileSearchManager implements Serializable {
              try {
                  // Cria um fluxo de entrada para ler o arquivo save
                  ObjectInputStream objectInputStream = new ObjectInputStream(new FileInputStream(save));
-                 FileSearchManager restoredFileManager = (FileSearchManager) objectInputStream.readObject();
-                 this.name = restoredFileManager.name;
-                 this.fileSize = restoredFileManager.fileSize;
-                 this.blockNumber = restoredFileManager.blockNumber;
-                 this.filehash = restoredFileManager.filehash;
-                 this.fileBlocks = restoredFileManager.fileBlocks;
+                 FileSearchManager restoredFileSearchManager = (FileSearchManager) objectInputStream.readObject();
+                 this.name = restoredFileSearchManager.name;
+                 this.fileSize = restoredFileSearchManager.fileSize;
+                 this.blockNumber = restoredFileSearchManager.blockNumber;
+                 this.filehash = restoredFileSearchManager.filehash;
+                 this.fileBlocks = restoredFileSearchManager.fileBlocks;
              }catch (Exception e){
                  System.out.println(e);
                  e.printStackTrace();

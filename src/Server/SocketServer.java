@@ -47,15 +47,14 @@ public class SocketServer extends Thread {
         while(running){     // Loop que continua enquanto o servidor está em execução
             try {
                 MessageWrapper message = (MessageWrapper) in.readObject();
-                System.out.println("Server received message from " + socket.getRemoteSocketAddress() + " on thread" + Thread.currentThread().getName() );
+                System.out.println("Server received message");
                 switch (message.getCommand()) {
                     case Command.WordSearchMessage:{    // Para a busca de palavras
                         WordSearchMessage data =  (WordSearchMessage)  message.getData();    // Obtém os dados da mensagem
-                        List<FileSearchManager> searchResult = data.search();      // Realiza a busca e obtém os resultados
+                        List<FileSearchManager> searchResult =  data.search();      // Realiza a busca e obtém os resultados
                         FileSearchResult[] result = new FileSearchResult[searchResult.size()];     // Cria um array para os resultados da busca
-                        // Loop pelos resultados da busca
-                        for(int i = 0; i < searchResult.size(); i++){
-                            result[i] = new FileSearchResult(data, searchResult.get(i), message.getReceiver(), socket.getPort());
+                        for(int i = 0; i < searchResult.size(); i++){        // Loop pelos resultados da busca
+                            result[i] = new FileSearchResult(data, searchResult.get(i), message.getReceiver() ,socket.getPort());       // Cria um resultado de busca para cada item encontrado
                         }
                         out.writeObject(new MessageWrapper(message.getReceiver(),Command.FileSearchResult ,result));    // Envia os resultados de volta para o cliente
                         break; // Sai do switch

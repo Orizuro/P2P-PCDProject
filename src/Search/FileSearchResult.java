@@ -11,17 +11,12 @@ public class FileSearchResult implements Serializable {
     private int port;
 
 
-    public FileSearchResult(WordSearchMessage wordSearchMessage, FileSearchManager fileManager, String ip, int port) {
+    public FileSearchResult(WordSearchMessage wordSearchMessage, FileSearchManager fileSearchManager, String ip, int port) {
         this.wordSearchMessage = wordSearchMessage;
-        this.fileSearchManager = fileManager;
+        this.fileSearchManager = fileSearchManager;
         this.ip = ip;
         this.port = port;
     }
-
-    public FileSearchManager getFileInfo(){
-        return this.fileSearchManager;
-    }
-
     @Override
     public String toString() {
         return (fileSearchManager.name);
