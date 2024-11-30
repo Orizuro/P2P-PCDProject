@@ -20,7 +20,6 @@ public class PopUpInterface {
     public PopUpInterface(ClientManager clientManage) {
         this.clientManager = clientManage;
         frame = new JFrame();
-        frame.setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE); // para que o botao de fechar a janela termine a aplicacao
         addPopUpFrameContent();
         frame.setSize(590,90); // janela com um tamanho fixo inicial
         frame.setLocationRelativeTo(null); //para centrar a janela
@@ -80,7 +79,7 @@ public class PopUpInterface {
                 String address = adressSearchWindow.getText();
                 int port = Integer.parseInt(portSearchWindow.getText());
                 if (validIP(address) && port >= 0 && port <= 65535) {
-                    ClientThread client1 = new ClientThread(clientManager, address, port);
+                    clientManager.addClientThread(address, port);
                     frame.dispose();
                     JOptionPane.showMessageDialog(frame, "A ligação foi efetuada com sucesso.");
                 } else {

@@ -1,29 +1,28 @@
 package Communication;
 
 import java.io.Serializable;
-import java.io.StringReader;
 
 public class MessageWrapper implements Serializable {
-    private String receiverIp;
-    //private String senderIp;
+    private String serverIp;
+    private int serverPort;
     private Command command;
     private Object data;     // Variável que armazena os dados associados à mensagem
     //, String senderIp
-    public MessageWrapper(String receiverIp, Command command, Object data) {
-        this.receiverIp = receiverIp;
-        //this.senderIp = senderIp;
+    public MessageWrapper(String serverIp, int serverPort, Command command, Object data) {
+        this.serverIp = serverIp;
+        this.serverPort = serverPort;
         this.command = command;
         this.data = data;
     }
 
-    public String getReceiver() {
-        return receiverIp;
+    public String getServerIp() {
+        return serverIp;
     }
-    /*
-    public String getSender() {
-        return senderIp;
+
+    public int getServerPort() {
+        return serverPort;
     }
-    */
+
     public Command getCommand() {
         return command;
     }

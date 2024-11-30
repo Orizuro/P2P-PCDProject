@@ -5,39 +5,32 @@ import java.util.Arrays;
 
 public final class FileBlockAnswerMessage implements Serializable {
     private final String fileHash;
-    private final int offset;
+    private final int blockId;
     private final byte[] data;
-    private final int length;
 
-    public FileBlockAnswerMessage(String fileHash, int offset, byte[] data, int length) {
+    public FileBlockAnswerMessage(String fileHash, byte[] data, int blockId) {
         this.fileHash = fileHash;
-        this.offset = offset;
+        this.blockId = blockId;
         this.data = Arrays.copyOf(data, data.length); // Evita alterações externas - Imutabilidade para maior segurança
-        this.length = length;
     }
 
     public String getFileHash() {
         return fileHash;
     }
 
-    public int getOffset() {
-        return offset;
-    }
-
     public byte[] getData() {
         return Arrays.copyOf(data, data.length); // Evita modificações externas - Imutabilidade para maior segurança
     }
 
-    public int getLength() {
-        return length;
+    public int getBlockId() {
+        return blockId;
     }
+
 
     @Override
     public String toString() {
         return "FileBlockAnswerMessage{" +
                 "fileHash='" + fileHash + '\'' +
-                ", offset=" + offset +
-                ", length=" + length +
                 '}';
     }
 }

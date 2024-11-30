@@ -9,14 +9,16 @@ public class ClientThread extends Thread implements Comparable<ClientThread> {
     private final SocketClient socketClient;
     private final String clientName; // Client's name for identification
     private final ClientManager clientManager; // Reference to the client manager
+    private String ip;
+    private int port;
+    private volatile boolean isRunning = true;
 
     public ClientThread(ClientManager clientManager, String ip, int port) {
         this.clientManager = clientManager;
+        this.ip = ip;
+        this.port = port;
         this.socketClient = new SocketClient(ip, port);
         this.clientName = UUID.randomUUID().toString();;
-
-        // Register this thread with the client manager
-        clientManager.addClientThread(this);
         socketClient.startSocket();
         this.start();
     }
@@ -24,20 +26,13 @@ public class ClientThread extends Thread implements Comparable<ClientThread> {
     @Override
     public void run() {
         try {
-            while (true) {
+            while (isRunning) {
                 this.clientManager.receive(socketClient.receiveObject(), this);
             }
         } catch (InterruptedException e) {
             System.out.println(clientName + " has been interrupted.");
         } catch (Exception e) {
             System.out.println("Error in " + clientName + ": " + e.getMessage());
-        } finally {
-            clientManager.removeClientThread(this);
-            try {
-                socketClient.stopConnection();
-            } catch (IOException | InterruptedException e) {
-                System.out.println("Error closing connection for " + clientName + ": " + e.getMessage());
-            }
         }
     }
 
@@ -50,6 +45,30 @@ public class ClientThread extends Thread implements Comparable<ClientThread> {
     public String getClientName() {
         return clientName;
     }
+
+    public String getIp() {
+        return ip;
+    }
+    public int getPort() {
+        return port;
+    }
+
+    private void cleanup() {
+        clientManager.removeClientThread(this); // Unregister from the manager.
+        try {
+            socketClient.stopConnection(); // Close the socket connection.
+        } catch (IOException | InterruptedException e) {
+            System.out.println("Error closing connection for " + clientName + ": " + e.getMessage());
+        }
+        System.out.println(clientName + " has been safely terminated.");
+    }
+
+    public void terminate() {
+        isRunning = false; // Signal the thread to stop.
+        interrupt(); // Interrupt the thread if it's blocked.
+        cleanup(); // Ensure resources are released.
+    }
+
 
     @Override
     public int compareTo(ClientThread other) {

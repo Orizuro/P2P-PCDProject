@@ -24,6 +24,7 @@ public class SocketClient  {
     public synchronized void startSocket(){
         try{
             this.clientSocket = new Socket(ip, port);   // Conecta-se ao servidor com determinado IP e por uma determinada porta
+            System.out.println(clientSocket.getLocalPort());
             System.out.println("Client connected to " + ip + ":" + port);
             this.out = new ObjectOutputStream(clientSocket.getOutputStream());  // Iniciado o fluxo de saída
             this.in = new ObjectInputStream(clientSocket.getInputStream());   // Iniciadlo o fluxo de entrada
@@ -40,7 +41,7 @@ public class SocketClient  {
             wait();
         }
         System.out.println("Client sent message to " + ip + ":" + port);
-        MessageWrapper message = new MessageWrapper(this.ip, command, object); // "Embrulha" e envia uma mensagem
+        MessageWrapper message = new MessageWrapper(this.ip, this.port,command, object); // "Embrulha" e envia uma mensagem
         this.out.writeObject(message);   // Envia a mensagem
     }
 
@@ -57,10 +58,21 @@ public class SocketClient  {
     }
 
     public synchronized void stopConnection() throws IOException, InterruptedException {
-        sendObject(Terminate,null);    // Envia o comando "Já acabei"
-        Thread.sleep(100);   // Espera 100 milisegundos antes de fechar o SocketClient
-        this.clientSocket.close();   // Fecha o SocketClient
-        System.out.println("Connection closed client");
+        try {
+            sendObject(Terminate, null); // Send the terminate command.
+        } catch (IOException e) {
+            System.err.println("Error sending terminate command: " + e.getMessage());
+        }
+        // Close the socket safely.
+        try {
+            if (clientSocket != null && !clientSocket.isClosed()) {
+                System.out.println("Client disconnected");
+                clientSocket.close();
+                System.out.println("Connection closed for client.");
+            }
+        } catch (IOException e) {
+            System.err.println("Error closing socket: " + e.getMessage());
+        }
     }
 
     /*

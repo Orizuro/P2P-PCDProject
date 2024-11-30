@@ -105,7 +105,6 @@ public class MainInterface {
                         while (clientManager.isWaiting()) {
                             sleep(100);
                         }
-                        Thread.sleep(1000);
                         return null;
                     }
                     @Override
@@ -155,14 +154,7 @@ public class MainInterface {
     }
 
 
-    public static void main(String[] args) {
-        SocketServer server =new SocketServer(6666);
-        Thread thread_server = new Thread(new RunnableSocketServer(server));
-        thread_server.start();
-        ClientManager clientManager = new ClientManager();
-        MainInterface gui = new MainInterface(clientManager);
-        gui.open();
-    }
+
 
 
 }

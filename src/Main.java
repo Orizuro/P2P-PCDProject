@@ -1,19 +1,22 @@
 import Client.ClientManager;
-import Client.ClientThread;
 import Communication.Command;
-import Files.SearchTaskManager;
+import Communication.GlobalConfig;
+import Files.FileInfo;
+import Search.FileSearchResult;
 import Search.WordSearchMessage;
 import Server.RunnableSocketServer;
 import Server.SocketServer;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.HashMap;
+import java.util.List;
 
 public class Main {
     public static void main(String[] args) throws IOException, InterruptedException {
         //MainInterface gui = new MainInterface();
         //gui.open();
-        //Files.SearchTaskManager fileManager = new Files.SearchTaskManager("./img.png");
+        //Files.SearchTaskManager fileManager = new Files.SearchTaskManager("./gmi.png");
         //fileManager.readAllFiles();
         //fileManager.splitFile();
         //fileManager.saveFileData();
@@ -27,11 +30,12 @@ public class Main {
     }
     public synchronized static void testFiels() {
         File file = new File("./img.png");
-        SearchTaskManager searchTaskManager = new SearchTaskManager(file);
+        FileInfo searchTaskManager = new FileInfo(file);
 
     }
 
     public static void testmultiplefilesearch(String word) throws IOException, InterruptedException {
+        GlobalConfig gc = GlobalConfig.getInstance();
         System.out.println("Running in thread: " + Thread.currentThread().getName());
         SocketServer server =new SocketServer(6666);
 
@@ -42,32 +46,26 @@ public class Main {
 
         ClientManager clientManager = new ClientManager();
 
-        // Create and start client threads
-        ClientThread client1 = new ClientThread(clientManager, "127.0.0.1", 6666);
-        ClientThread client2 = new ClientThread(clientManager, "127.0.0.1", 6666);
-        ClientThread client3 = new ClientThread(clientManager, "127.0.0.1", 6666);
+        clientManager.addClientThread("127.0.0.1", 6666);
+        clientManager.addClientThread("127.0.0.1", 6666);
 
-
-
-        // Example of sending a message to all clients after some time
         try {
             Thread.sleep(1000); // Wait for 2 seconds before sending a broadcast message
-            clientManager.sendAll(Command.WordSearchMessage, new WordSearchMessage("i"));
+            clientManager.sendAll(Command.WordSearchMessage, new WordSearchMessage("png"));
             Thread.sleep(1000);
         } catch (InterruptedException e) {
             System.out.println("Main thread interrupted.");
         }
-        //Client Portion
-        System.out.println("Main thread asking ClientManager");
-        /*
-        for (FileSearchResult[] file : clientManager.getData()) {
-            for(FileSearchResult result : file) {
-                System.out.println(result.toString());
-            }
-        }
 
-         */
-        System.out.println(Thread.currentThread().getName());
+        System.out.println("Main thread asking ClientManager");
+        HashMap<String, List<FileSearchResult>> data = clientManager.getData();
+
+        //TODO select file to download in gui
+        List<FileSearchResult> fileavailable = data.entrySet().iterator().next().getValue();
+        System.out.println(fileavailable.toString());
+        clientManager.startDownloadThreads(fileavailable);
+
+
 
     }
 

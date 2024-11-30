@@ -1,7 +1,7 @@
 package Search;
 
 import Communication.GlobalConfig;
-import Files.SearchTaskManager;
+import Files.FileInfo;
 
 import java.io.File;
 import java.io.Serializable;
@@ -19,18 +19,20 @@ public class WordSearchMessage implements Serializable {
     }
 
 
-    public List<SearchTaskManager> search(){
-        Map<Integer, SearchTaskManager> occurrenceMap = new TreeMap<Integer, SearchTaskManager>();
-        File[] files = readAllFiles();
+    public List<FileInfo> search(){
+        GlobalConfig gc = GlobalConfig.getInstance();
+        Map<FileInfo,Integer> occurrenceMap = new TreeMap<FileInfo, Integer>();
+        File[] files = gc.getFilesInDirectory();
+        System.out.println(Arrays.toString(files));
         for (File file : files) {
-            if (!file.getName().endsWith(".ser")){
+            //if (!file.getName().endsWith(".ser")){
                 int occurrences = countOccurrences(file.getName());
-                SearchTaskManager info = new SearchTaskManager(file);
+                FileInfo info = new FileInfo(file);
                 if(occurrences != 0)
-                    occurrenceMap.put(occurrences,info);
-            }
+                    occurrenceMap.put(info, occurrences);
+            //}
         }
-        return new ArrayList<>(occurrenceMap.values());
+        return new ArrayList<>(occurrenceMap.keySet());
     }
 
     public int countOccurrences(String text) {
@@ -46,20 +48,4 @@ public class WordSearchMessage implements Serializable {
         return count;
     }
 
-    public File[] readAllFiles() {
-        GlobalConfig gc = new GlobalConfig();
-        File[] allFiles = new File(gc.getDefaultPath()).listFiles();
-        List<File> fileList = new ArrayList<>();
-
-        if (allFiles != null) {
-            for (File file : allFiles) {
-                if (file.isFile()) {
-                    fileList.add(file);
-                }
-            }
-        }
-
-        File[] files = fileList.toArray(new File[0]);
-        return files;
-    }
 }

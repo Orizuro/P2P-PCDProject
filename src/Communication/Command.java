@@ -7,4 +7,6 @@ public enum Command {
     Terminate,
     FileSearchResult,
     WordSearchMessage,
+    DownloadMessage,
+    DownloadResult
 }
