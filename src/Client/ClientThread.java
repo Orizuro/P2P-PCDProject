@@ -18,7 +18,7 @@ public class ClientThread extends Thread implements Comparable<ClientThread> {
         this.ip = ip;
         this.port = port;
         this.socketClient = new SocketClient(ip, port);
-        this.clientName = UUID.randomUUID().toString();;
+        this.clientName = UUID.randomUUID().toString();
         socketClient.startSocket();
         this.start();
     }

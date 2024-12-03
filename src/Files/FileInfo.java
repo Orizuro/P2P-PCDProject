@@ -1,6 +1,7 @@
 package Files;
 
 import Communication.GlobalConfig;
+import Download.FileBlockAnswerMessage;
 
 import java.io.*;
 import java.nio.file.Files;
@@ -8,6 +9,7 @@ import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 public class FileInfo implements Serializable, Comparable<FileInfo> {
     public String name;
@@ -93,13 +95,32 @@ public class FileInfo implements Serializable, Comparable<FileInfo> {
         }
     }
 
-    void splitFile(File file){
-        for(int i = 0; i < blockNumber ; i++ ){ // Itera sobre o número de blocos
-            int start = i * blocksize == 0 ? 0 : i * blocksize + 1;  // Calcula o byte inicial do bloco
-            int end = Math.min(blocksize * (i + 1), this.fileSize);  // Calcula o byte final do bloco
+    void splitFile(File file) {
+        for (int i = 0; i < blockNumber; i++) { // Iterate over the number of blocks
+            int start = i * blocksize;  // Calculate the start byte of the block
+            int end = Math.min(blocksize * (i + 1), this.fileSize);  // Calculate the end byte of the block
             this.fileBlockManagers.add(new FileBlockInfo(file, start, end));
         }
     }
+
+
+    void writeFile(Map<Integer, FileBlockAnswerMessage> data) {
+        GlobalConfig gc = GlobalConfig.getInstance();
+        String outputPath = gc.getDefaultPath() + this.name; // Get the output file path
+        File outputFile = new File(outputPath);
+
+        try (OutputStream outputStream = new FileOutputStream(outputFile)) {
+            for(int i = 0; i < data.size(); i++){
+                byte[] blockData = data.get(i).getData();
+                outputStream.write(blockData);
+            }
+            System.out.println("File successfully written to: " + outputPath);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+
 
 
 

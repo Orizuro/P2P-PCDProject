@@ -61,6 +61,7 @@ public class GlobalConfig {
     }
 
     public File[] getFilesInDirectory() {
+        readAllFiles();
         return filesInDirectory;
     }
 }

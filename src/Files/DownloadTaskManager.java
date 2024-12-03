@@ -8,49 +8,78 @@ import Download.FileBlockRequestMessage;
 import Search.FileSearchResult;
 
 import java.io.IOException;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicLong;
 
-public class DownloadTaskManager {
+public class DownloadTaskManager extends Thread {
     private ClientManager clientManager;
-    private List<FileSearchResult>  fileSearchResult;
+    private FileInfo  fileInfo;
     private Map<Integer, Boolean> blockStatus;
-    private Map<Integer, FileBlockAnswerMessage> fileData;
+    private Map<Integer, FileBlockAnswerMessage> fileData = new TreeMap<>();
+    private final String uid = UUID.randomUUID().toString();
     private final AtomicLong totalTime;
+    List<ClientThread> availableThreads = new ArrayList<>();
 
 
-    public DownloadTaskManager(ClientManager clientmanager, List<FileSearchResult>  fileSearchResult) {
+    public DownloadTaskManager(ClientManager clientmanager, FileInfo  fileInfo) {
         this.clientManager = clientmanager;
-        this.fileSearchResult = fileSearchResult;
+        this.fileInfo = fileInfo;
         this.totalTime = new AtomicLong(0);
         this.blockStatus = new ConcurrentHashMap<>();
     }
 
-    public Thread startDownload(List<ClientThread> availableThreads) throws IOException, InterruptedException {
-        //TODO Refactor to use @override run() (extends threads)
-        Thread newThread = new Thread(() -> {
-            FileInfo fileInfo = fileSearchResult.getFirst().getFileInfo();
-            int pointer = 0;
-            while (blockStatus.size() < fileInfo.blockNumber) {
+    @Override
+    public void run() {
+        int pointer = 0;
+        try {
+            while (blockStatus.size() != fileInfo.blockNumber) {
                 for (ClientThread thread : availableThreads) {
-                    if(!clientManager.isThreadBusy(thread)){
-                        System.out.println("Asking block " + pointer);
-                        blockStatus.put(pointer,true);
-                        try {
-                            clientManager.sendThread(thread,Command.DownloadMessage, new FileBlockRequestMessage(fileInfo.fileBlockManagers.get(pointer),fileInfo.filehash,fileInfo.name, pointer));
-                        } catch (IOException | InterruptedException e) {
-                            throw new RuntimeException(e);
-                        }
+                    if (pointer >= fileInfo.blockNumber) break;
+                    if (!clientManager.isThreadBusy(thread)) {
+                        System.out.println("Requesting block " + pointer);
+                        blockStatus.put(pointer, true);
+                        clientManager.sendThread(thread, Command.DownloadMessage,
+                                new FileBlockRequestMessage(fileInfo.fileBlockManagers.get(pointer),
+                                        fileInfo.filehash, uid, pointer));
                         pointer++;
                     }
                 }
             }
-        });
-         newThread.start();
-         return newThread;
+        } catch (IOException | InterruptedException e) {
+            System.err.println("Error during download: " + e.getMessage());
+        }
+        while (! isFinished()){
+            try {
+                sleep(100);
+            } catch (InterruptedException e) {
+                throw new RuntimeException(e);
+            }
+        }
+        fileInfo.writeFile(fileData);
+        for(ClientThread thread : availableThreads){
+            thread.terminate();
+        }
+        System.out.println("File downloaded");
+    }
 
+    public void startDownload() {
+        this.start();
+    }
+
+    public void addFileblock(int blockId, FileBlockAnswerMessage fileBlock){
+        fileData.put(blockId,fileBlock);
+    }
+    public String getUid() {
+        return uid;
+    }
+
+    public boolean isFinished(){
+        return fileData.size() == fileInfo.blockNumber;
+    }
+
+    public void addDownloadThread(ClientThread clientThread) {
+        availableThreads.add(clientThread);
     }
 
     /*

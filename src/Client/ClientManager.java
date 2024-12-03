@@ -8,11 +8,15 @@ import Search.FileSearchResult;
 
 import java.io.IOException;
 import java.util.*;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 public class ClientManager {
     private Map<ClientThread, Boolean> clientThreads;
     private HashMap<String, List<FileSearchResult>> FileSearchDB;
-    private Map<DownloadTaskManager, Boolean> downloadThreads;
+    private Map<String,DownloadTaskManager> downloadThreads = new HashMap<>();
+    private final ExecutorService threadPool = Executors.newFixedThreadPool(5); // Configurable pool size
+
 
     public ClientManager() {
         this.clientThreads = new TreeMap<>();
@@ -29,18 +33,21 @@ public class ClientManager {
         clientThreads.remove(clientThread);
     }
 
-    public synchronized void sendAll(Command command, Object message) { //Manda mensagem para todos os clients
+    public synchronized void sendAll(Command command, Object message) {
         for (ClientThread clientThread : clientThreads.keySet()) {
-            try {
-                clientThreads.replace(clientThread, true);
-                clientThread.sendObject(command, message);
-            } catch (InterruptedException e) {
-                System.out.println("Error sending message to " + clientThread.getClientName() + ": " + e.getMessage());
-            } catch (IOException e) {
-                throw new RuntimeException(e);
-            }
+            threadPool.submit(() -> {
+                try {
+                    clientThreads.replace(clientThread, true);
+                    clientThread.sendObject(command, message);
+                } catch (InterruptedException | IOException e) {
+                    System.out.println("Error sending message to " + clientThread.getClientName() + ": " + e.getMessage());
+                } finally {
+                    clientThreads.replace(clientThread, false);
+                }
+            });
         }
     }
+
 
     public synchronized void sendThread(ClientThread clientThread,Command command, Object message) throws IOException, InterruptedException {
         clientThreads.replace(clientThread, true);
@@ -63,7 +70,7 @@ public class ClientManager {
                 FileBlockAnswerMessage received = (FileBlockAnswerMessage)  message.getData();
                 System.out.println("Cliente received block :" + received.getBlockId());
                 clientThreads.replace(clientThread, false);
-                //TODO store files blocks in DownloadTaskManager
+                downloadThreads.get(received.getDtmUID()).addFileblock(received.getBlockId(),received);
                 break;
             }
             default: {
@@ -99,23 +106,30 @@ public class ClientManager {
         return this.clientThreads.get(clientThread);
     }
 
-    public void startDownloadThreads(List<FileSearchResult> fileAvailable) throws IOException, InterruptedException {
-        List<ClientThread> availableDownloadThreads = new ArrayList<>();
-        int maxThreads = 5;
-        int currentThreads = 0;
-        while( currentThreads < maxThreads){
-            for (FileSearchResult file : fileAvailable) {
-                availableDownloadThreads.add(addClientThread( file.getIp(),file.getPort()));
-                currentThreads++;
-                if(currentThreads >= maxThreads){  
-                    break;
-                }
+    public String searchFileByName(String name){
+        for(List<FileSearchResult> fs   : FileSearchDB.values() ){
+            if(fs.getFirst().getFileInfo().name.equals(name)){
+                return fs.getFirst().getFileInfo().filehash;
             }
         }
+        return null;
+    }
 
-        DownloadTaskManager dtm =  new DownloadTaskManager(this, fileAvailable);
-        this.downloadThreads.put(dtm, true);
-        dtm.startDownload(availableDownloadThreads);
+    public void startDownloadThreads(String name) {
+        List<FileSearchResult> fsr = FileSearchDB.get(searchFileByName(name));
+        ExecutorService threadPool = Executors.newFixedThreadPool(5); // Create a thread pool with max 5 threads
+
+        DownloadTaskManager dtm = new DownloadTaskManager(this, fsr.get(0).getFileInfo());
+        this.downloadThreads.put(dtm.getUid(), dtm);
+
+        for (FileSearchResult file : fsr) {
+            threadPool.execute(() -> {
+                ClientThread clientThread = addClientThread(file.getIp(), file.getPort());
+                dtm.addDownloadThread(clientThread);
+            });
+        }
+        dtm.startDownload();
+        threadPool.shutdown();
     }
 
 }

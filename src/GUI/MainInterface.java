@@ -34,7 +34,7 @@ public class MainInterface {
         frame = new JFrame();
         frame.setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE); // para que o botao de fechar a janela termine a aplicacao
         addFrameContent();
-        frame.pack(); // para que a janela se redimensione de forma a ter todo o seu conteudo visivel
+        frame.pack(); // para que a janela se redimensione de forma a ter tod o seu conteudo visivel
         frame.setSize(500,300); //para iniciar a janela com um tamanho apropriado (pederá ser redimensionável)
         frame.setLocationRelativeTo(null); //para centrar a janela
     }
@@ -134,7 +134,8 @@ public class MainInterface {
             public void actionPerformed(ActionEvent e) {
                 String selectedFile = searchResultsList.getSelectedValue();
                 if (selectedFile != null) {
-                    // (...)
+                    String modifiedString = selectedFile.substring(0, selectedFile.length() - 3);
+                    clientManager.startDownloadThreads(modifiedString);
                     JOptionPane.showMessageDialog(frame, "Download iniciado com sucesso.");
                 } else {
                     JOptionPane.showMessageDialog(frame, "Selecione um ficheiro primeiro.");

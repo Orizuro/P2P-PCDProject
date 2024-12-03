@@ -63,7 +63,7 @@ public class Main {
         //TODO select file to download in gui
         List<FileSearchResult> fileavailable = data.entrySet().iterator().next().getValue();
         System.out.println(fileavailable.toString());
-        clientManager.startDownloadThreads(fileavailable);
+        //clientManager.startDownloadThreads(fileavailable);
 
 
 
