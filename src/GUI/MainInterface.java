@@ -18,6 +18,7 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.util.HashMap;
 import java.util.List;
+import java.util.concurrent.ExecutionException;
 
 import javax.swing.*;
 
@@ -96,7 +97,13 @@ public class MainInterface {
                 }
                 searchResultsModel.clear();
                 clientManager.resetFileSearchDB();
-                clientManager.sendAll(Command.WordSearchMessage, new WordSearchMessage(searchTerm));
+                try {
+                    clientManager.sendAll(Command.WordSearchMessage, new WordSearchMessage(searchTerm));
+                } catch (ExecutionException ex) {
+                    throw new RuntimeException(ex);
+                } catch (InterruptedException ex) {
+                    throw new RuntimeException(ex);
+                }
                 buttonSearch.setEnabled(false);
 
                 SwingWorker<Void, Void> worker = new SwingWorker<>() {

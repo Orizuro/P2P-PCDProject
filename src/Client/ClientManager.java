@@ -8,8 +8,10 @@ import Search.FileSearchResult;
 
 import java.io.IOException;
 import java.util.*;
+import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
 
 public class ClientManager {
     private Map<ClientThread, Boolean> clientThreads;
@@ -33,25 +35,19 @@ public class ClientManager {
         clientThreads.remove(clientThread);
     }
 
-    public synchronized void sendAll(Command command, Object message) {
+    public synchronized void sendAll(Command command, Object message) throws ExecutionException, InterruptedException {
         for (ClientThread clientThread : clientThreads.keySet()) {
-            threadPool.submit(() -> {
-                try {
-                    clientThreads.replace(clientThread, true);
-                    clientThread.sendObject(command, message);
-                } catch (InterruptedException | IOException e) {
-                    System.out.println("Error sending message to " + clientThread.getClientName() + ": " + e.getMessage());
-                } finally {
-                    clientThreads.replace(clientThread, false);
-                }
-            });
+            Future<Object> futureResult = clientThread.sendAndWaitAsync(command, message);
+            Object result = futureResult.get();
+            receive((MessageWrapper) result, clientThread);
         }
     }
 
 
-    public synchronized void sendThread(ClientThread clientThread,Command command, Object message) throws IOException, InterruptedException {
-        clientThreads.replace(clientThread, true);
-        clientThread.sendObject(command,message);
+    public synchronized void sendThread(ClientThread clientThread,Command command, Object message) throws IOException, InterruptedException, ExecutionException {
+        Future<Object> futureResult = clientThread.sendAndWaitAsync(command, message);
+        Object result = futureResult.get();
+        receive((MessageWrapper) result, clientThread);
     }
 
 
@@ -62,7 +58,6 @@ public class ClientManager {
                 for (FileSearchResult file : received) {
                     addToFileSearchResult(file);
                 }
-                //clientThread.terminate();
                 clientThreads.replace(clientThread, false);
                 break;
             }

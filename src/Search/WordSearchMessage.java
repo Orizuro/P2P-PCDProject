@@ -23,14 +23,11 @@ public class WordSearchMessage implements Serializable {
         GlobalConfig gc = GlobalConfig.getInstance();
         Map<FileInfo,Integer> occurrenceMap = new TreeMap<FileInfo, Integer>();
         File[] files = gc.getFilesInDirectory();
-        System.out.println(Arrays.toString(files));
         for (File file : files) {
-            //if (!file.getName().endsWith(".ser")){
                 int occurrences = countOccurrences(file.getName());
                 FileInfo info = new FileInfo(file);
                 if(occurrences != 0)
                     occurrenceMap.put(info, occurrences);
-            //}
         }
         return new ArrayList<>(occurrenceMap.keySet());
     }

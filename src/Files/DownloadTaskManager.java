@@ -5,11 +5,9 @@ import Client.ClientThread;
 import Communication.Command;
 import Download.FileBlockAnswerMessage;
 import Download.FileBlockRequestMessage;
-import Search.FileSearchResult;
 
-import java.io.IOException;
 import java.util.*;
-import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.*;
 import java.util.concurrent.atomic.AtomicLong;
 
 public class DownloadTaskManager extends Thread {
@@ -20,11 +18,13 @@ public class DownloadTaskManager extends Thread {
     private final String uid = UUID.randomUUID().toString();
     private final AtomicLong totalTime;
     List<ClientThread> availableThreads = new ArrayList<>();
+    private final ExecutorService threadPool;
 
 
     public DownloadTaskManager(ClientManager clientmanager, FileInfo  fileInfo) {
         this.clientManager = clientmanager;
         this.fileInfo = fileInfo;
+        this.threadPool = Executors.newFixedThreadPool(5);
         this.totalTime = new AtomicLong(0);
         this.blockStatus = new ConcurrentHashMap<>();
     }
@@ -32,22 +32,24 @@ public class DownloadTaskManager extends Thread {
     @Override
     public void run() {
         int pointer = 0;
-        try {
-            while (blockStatus.size() != fileInfo.blockNumber) {
-                for (ClientThread thread : availableThreads) {
-                    if (pointer >= fileInfo.blockNumber) break;
-                    if (!clientManager.isThreadBusy(thread)) {
-                        System.out.println("Requesting block " + pointer);
-                        blockStatus.put(pointer, true);
-                        clientManager.sendThread(thread, Command.DownloadMessage,
-                                new FileBlockRequestMessage(fileInfo.fileBlockManagers.get(pointer),
-                                        fileInfo.filehash, uid, pointer));
-                        pointer++;
+        while (blockStatus.size() != fileInfo.blockNumber){
+            //System.out.println(pointer);
+
+            for (ClientThread thread : availableThreads) {
+                if (pointer >= fileInfo.blockNumber) break;
+                int finalPointer = pointer;
+                threadPool.execute(() -> {
+                    System.out.println("Requesting block " + finalPointer);
+                    blockStatus.put(finalPointer, true);
+                    try {
+                        clientManager.sendThread(thread, Command.DownloadMessage, new FileBlockRequestMessage(fileInfo.fileBlockManagers.get(finalPointer), fileInfo.filehash, uid, finalPointer));
+                        System.out.println(thread.getClientName());
+                    }catch (Exception e){
+                        throw new RuntimeException(e);
                     }
-                }
+                });
+                pointer++;
             }
-        } catch (IOException | InterruptedException e) {
-            System.err.println("Error during download: " + e.getMessage());
         }
         while (! isFinished()){
             try {
@@ -58,7 +60,7 @@ public class DownloadTaskManager extends Thread {
         }
         fileInfo.writeFile(fileData);
         for(ClientThread thread : availableThreads){
-            thread.terminate();
+            thread.close();
         }
         System.out.println("File downloaded");
     }

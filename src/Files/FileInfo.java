@@ -20,52 +20,16 @@ public class FileInfo implements Serializable, Comparable<FileInfo> {
     final int blocksize = 102400;
 
     public FileInfo(File file){
-         File save = new File( file + ".ser");
          if(file.getName().endsWith(".ser") || file.isDirectory()){ // Verifica se o arquivo é um .ser ou um diretório
              return;
          }
-         if(save.exists()){
-             try {
-                 // Cria um fluxo de entrada para ler o arquivo save
-                 ObjectInputStream objectInputStream = new ObjectInputStream(new FileInputStream(save));
-                 FileInfo restoredSearchTaskManager = (FileInfo) objectInputStream.readObject();
-                 this.name = restoredSearchTaskManager.name;
-                 this.fileSize = restoredSearchTaskManager.fileSize;
-                 this.blockNumber = restoredSearchTaskManager.blockNumber;
-                 this.filehash = restoredSearchTaskManager.filehash;
-                 this.fileBlockManagers = restoredSearchTaskManager.fileBlockManagers;
-             }catch (Exception e){
-                 System.out.println(e);
-                 e.printStackTrace();
-             }
-         } else{
-             // Se o arquivo de salvamento não existe
-             System.out.println("File does not exist");  // Atribui o arquivo recebido ao atributo
-             this.name = file.getName();
-             this.fileSize = (int) file.length();
-             this.blockNumber = (int) Math.ceil( (double) fileSize / blocksize) ;  // Calcula o número de blocos
-             this.filehash = getFileHash(file);   // Obtém o hash do arquivo
-             this.fileBlockManagers = new ArrayList<>();
-             splitFile(file);
-             saveFileData();
-         }
-
+         this.name = file.getName();
+         this.fileSize = (int) file.length();
+         this.blockNumber = (int) Math.ceil( (double) fileSize / blocksize) ;  // Calcula o número de blocos
+         this.filehash = getFileHash(file);   // Obtém o hash do arquivo
+         this.fileBlockManagers = new ArrayList<>();
+         splitFile(file);
      }
-
-    void saveFileData(){
-        try{
-            // Metodo para guardar os dados do SearchTaskManager num arquivo .ser
-            String filename = this.name;
-            GlobalConfig gc = GlobalConfig.getInstance();
-            // Cria um fluxo de saída para guardar o objeto SearchTaskManager
-            FileOutputStream fileOutputStream = new FileOutputStream(gc.getDefaultPath() + filename + ".ser");
-            ObjectOutputStream objectOutputStream = new ObjectOutputStream(fileOutputStream);
-            objectOutputStream.writeObject(this);  // Serializa e escreve o objeto no arquivo
-            objectOutputStream.close();
-        }catch(IOException e){
-            e.printStackTrace();
-        }
-    }
 
 
     private  String getFileHash(File file) {
@@ -103,7 +67,6 @@ public class FileInfo implements Serializable, Comparable<FileInfo> {
         }
     }
 
-
     void writeFile(Map<Integer, FileBlockAnswerMessage> data) {
         GlobalConfig gc = GlobalConfig.getInstance();
         String outputPath = gc.getDefaultPath() + this.name; // Get the output file path
@@ -119,11 +82,6 @@ public class FileInfo implements Serializable, Comparable<FileInfo> {
             e.printStackTrace();
         }
     }
-
-
-
-
-
 
     @Override
     public String toString() {

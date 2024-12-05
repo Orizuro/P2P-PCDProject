@@ -51,7 +51,7 @@ public class Main {
 
         try {
             Thread.sleep(1000); // Wait for 2 seconds before sending a broadcast message
-            clientManager.sendAll(Command.WordSearchMessage, new WordSearchMessage("png"));
+           // clientManager.sendAll(Command.WordSearchMessage, new WordSearchMessage("png"));
             Thread.sleep(1000);
         } catch (InterruptedException e) {
             System.out.println("Main thread interrupted.");
