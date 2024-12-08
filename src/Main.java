@@ -14,24 +14,8 @@ import java.util.List;
 
 public class Main {
     public static void main(String[] args) throws IOException, InterruptedException {
-        //MainInterface gui = new MainInterface();
-        //gui.open();
-        //Files.SearchTaskManager fileManager = new Files.SearchTaskManager("./gmi.png");
-        //fileManager.readAllFiles();
-        //fileManager.splitFile();
-        //fileManager.saveFileData();
-        //Files.SearchTaskManager fileManagers = new Files.SearchTaskManager(new File("./"));
-        //System.out.println( fileManagers.fileBlocks[0].toString());
         Thread.sleep(2000);
-        //testsocket();
-        //testfilesearch("Enunciado");
         testmultiplefilesearch("Enunc");
-        //testFiels();
-    }
-    public synchronized static void testFiels() {
-        File file = new File("./img.png");
-        FileInfo searchTaskManager = new FileInfo(file);
-
     }
 
     public static void testmultiplefilesearch(String word) throws IOException, InterruptedException {
@@ -59,10 +43,10 @@ public class Main {
 
         System.out.println("Main thread asking ClientManager");
         HashMap<String, List<FileSearchResult>> data = clientManager.getData();
-
+        System.out.println(data);
         //TODO select file to download in gui
-        List<FileSearchResult> fileavailable = data.entrySet().iterator().next().getValue();
-        System.out.println(fileavailable.toString());
+       // List<FileSearchResult> fileavailable = data.entrySet().iterator().next().getValue();
+        //System.out.println(fileavailable.toString());
         //clientManager.startDownloadThreads(fileavailable);
 
 

@@ -1,7 +1,6 @@
 package GUI;
 
-import Client.ClientManager;
-import Client.ClientThread;
+import Client.*;
 import Communication.Command;
 import Search.FileSearchResult;
 import Search.WordSearchMessage;
@@ -9,7 +8,6 @@ import Server.RunnableSocketServer;
 import Server.SocketServer;
 
 import Client.ClientManager;
-import Client.SocketClient;
 import Communication.Command;
 import Search.FileSearchResult;
 
@@ -86,49 +84,37 @@ public class MainInterface {
         frame.add(rightPanel, BorderLayout.EAST);
 
 
-        // Action Listener do Botão "Procurar"
-        buttonSearch.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                String searchTerm = message.getText().trim();
-                if(searchTerm.isEmpty()) {
-                    return;
-                }
-                searchResultsModel.clear();
-                clientManager.resetFileSearchDB();
-                clientManager.sendAll(Command.WordSearchMessage, new WordSearchMessage(searchTerm));
-                buttonSearch.setEnabled(false);
+        buttonSearch.addActionListener(e -> {
 
-                SwingWorker<Void, Void> worker = new SwingWorker<>() {
-                    @Override
-                    protected Void doInBackground() throws Exception {
-                        while (clientManager.isWaiting()) {
-                            sleep(100);
-                        }
-                        return null;
-                    }
-                    @Override
-                    protected void done() {
-                        HashMap<String, List<FileSearchResult>> data = clientManager.getData();
-                        if(data.isEmpty()) {
-                            searchResultsModel.addElement("Ficheiro não encontrado");
-                            buttonSearch.setEnabled(true);
-                            return;
-                        }
-                        for(List<FileSearchResult> file : clientManager.getData().values()){
-                            searchResultsModel.addElement(file.getFirst().toString() + "<" + file.size() + ">");
-                        }
-                        buttonSearch.setEnabled(true);
-                    }
-                };
-
-                // Execute the worker
-                worker.execute();
+            String searchTerm = message.getText().trim();
+            if (searchTerm.isEmpty()) {
+                return;
             }
+            searchResultsModel.clear();
+            clientManager.resetFileSearchDB();
+            clientManager.sendAll(Command.WordSearchMessage, new WordSearchMessage(searchTerm));
+            buttonSearch.setEnabled(false);
+
+            Timer timeoutTimer = new Timer(3000, event -> {
+                searchResultsModel.addElement("Ficheiro não encontrado");
+                    buttonSearch.setEnabled(true);
+            });
+            timeoutTimer.setRepeats(false);
+            timeoutTimer.start();
+
+            clientManager.addListener(() -> {
+                timeoutTimer.stop();
+                SwingUtilities.invokeLater(() -> {
+                    searchResultsModel.clear();
+                    HashMap<String, List<FileSearchResult>> data = clientManager.getData();
+                    for (List<FileSearchResult> file : data.values()) {
+                        searchResultsModel.addElement(file.getFirst().toString() + "<" + file.size() + ">");
+                    }
+                    buttonSearch.setEnabled(true);
+                });
+            });
         });
 
-
-        // Action Listener do Botão "Descarregar"
         buttonDownload.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {

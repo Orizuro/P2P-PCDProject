@@ -10,6 +10,9 @@ import Search.FileSearchResult;
 import java.io.IOException;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicLong;
 
 public class DownloadTaskManager extends Thread {
@@ -20,47 +23,62 @@ public class DownloadTaskManager extends Thread {
     private final String uid = UUID.randomUUID().toString();
     private final AtomicLong totalTime;
     List<ClientThread> availableThreads = new ArrayList<>();
+    private int numberThreads = 5;
+    ExecutorService threadPool = Executors.newFixedThreadPool(numberThreads);
+    List<FileSearchResult> availableNodes;
 
 
-    public DownloadTaskManager(ClientManager clientmanager, FileInfo  fileInfo) {
+    public DownloadTaskManager(ClientManager clientmanager, FileInfo  fileInfo, List<FileSearchResult> nodes) {
         this.clientManager = clientmanager;
         this.fileInfo = fileInfo;
         this.totalTime = new AtomicLong(0);
         this.blockStatus = new ConcurrentHashMap<>();
+        this.availableNodes = nodes;
     }
 
     @Override
     public void run() {
-        int pointer = 0;
-        try {
-            while (blockStatus.size() != fileInfo.blockNumber) {
-                for (ClientThread thread : availableThreads) {
-                    if (pointer >= fileInfo.blockNumber) break;
-                    if (!clientManager.isThreadBusy(thread)) {
-                        System.out.println("Requesting block " + pointer);
-                        blockStatus.put(pointer, true);
-                        clientManager.sendThread(thread, Command.DownloadMessage,
-                                new FileBlockRequestMessage(fileInfo.fileBlockManagers.get(pointer),
-                                        fileInfo.filehash, uid, pointer));
-                        pointer++;
-                    }
-                }
-            }
-        } catch (IOException | InterruptedException e) {
-            System.err.println("Error during download: " + e.getMessage());
+        System.out.println("File blocks :" + fileInfo.blockNumber);
+        Random random = new Random();
+        List<ClientThread> availableThreads = new ArrayList<>();
+        for ( int i = 0; i < numberThreads; i++ ) {
+            FileSearchResult node = availableNodes.get(random.nextInt(availableNodes.size()));
+            availableThreads.add(new ClientThread( clientManager,node.getIp() , node.getPort()));
         }
-        while (! isFinished()){
+        for(int pointer = 0; pointer < fileInfo.blockNumber ; pointer++){
+            int finalPointer = pointer;
+            blockStatus.put(finalPointer, true);
+            threadPool.execute(() -> {
+                ClientThread thread = availableThreads.get((fileInfo.blockNumber - finalPointer) % numberThreads);
+                System.out.println((fileInfo.blockNumber - finalPointer) % numberThreads);
+                try {
+                    thread.sendObject( Command.DownloadMessage,
+                            new FileBlockRequestMessage(fileInfo.fileBlockManagers.get(finalPointer),
+                                    fileInfo.filehash, uid, finalPointer));
+                } catch (IOException | InterruptedException e) {
+                    throw new RuntimeException(e);
+                }
+            });
+        }
+
+        while(!isFinished()){
             try {
                 sleep(100);
             } catch (InterruptedException e) {
                 throw new RuntimeException(e);
             }
         }
+
         fileInfo.writeFile(fileData);
-        for(ClientThread thread : availableThreads){
-            thread.terminate();
-        }
         System.out.println("File downloaded");
+        threadPool.shutdown();
+        for(ClientThread thread : availableThreads){
+            try {
+                thread.terminateWithoutManager();
+            } catch (IOException | InterruptedException e) {
+                throw new RuntimeException(e);
+            }
+        };
     }
 
     public void startDownload() {
@@ -79,6 +97,7 @@ public class DownloadTaskManager extends Thread {
     }
 
     public void addDownloadThread(ClientThread clientThread) {
+        System.out.println("Adding thread " + availableThreads.size());
         availableThreads.add(clientThread);
     }
 

@@ -77,8 +77,8 @@ public class SocketServer extends Thread {
                     case Command.DownloadMessage:{
                         FileBlockRequestMessage data =  (FileBlockRequestMessage)  message.getData();
                         FileBlockAnswerMessage result =  new FileBlockAnswerMessage(data.getFileHash(),data.getBlock(),data.getBlockID(), data.getDtmUID());
-                        out.writeObject(new MessageWrapper(message.getServerIp(),message.getServerPort(),Command.DownloadResult ,result));
                         System.out.println("Server sending block " + result.getBlockId());
+                        out.writeObject(new MessageWrapper(message.getServerIp(),message.getServerPort(),Command.DownloadResult ,result));
                         break;
                     }
                     case Command.Terminate:{   // Para terminar a comunicação

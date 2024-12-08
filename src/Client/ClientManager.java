@@ -16,6 +16,7 @@ public class ClientManager {
     private HashMap<String, List<FileSearchResult>> FileSearchDB;
     private Map<String,DownloadTaskManager> downloadThreads = new HashMap<>();
     private final ExecutorService threadPool = Executors.newFixedThreadPool(5); // Configurable pool size
+    private final List<ClientManagerListener> listeners = new ArrayList<>();
 
 
     public ClientManager() {
@@ -69,7 +70,7 @@ public class ClientManager {
             case Command.DownloadResult:{
                 FileBlockAnswerMessage received = (FileBlockAnswerMessage)  message.getData();
                 System.out.println("Cliente received block :" + received.getBlockId());
-                clientThreads.replace(clientThread, false);
+                //clientThreads.replace(clientThread, false);
                 downloadThreads.get(received.getDtmUID()).addFileblock(received.getBlockId(),received);
                 break;
             }
@@ -92,6 +93,7 @@ public class ClientManager {
         }else{
             this.FileSearchDB.put(file.getFileInfo().filehash, new ArrayList<FileSearchResult>() {{ add(file);}});
         }
+        notifyListeners(FileSearchDB);
     }
 
     public void resetFileSearchDB(){
@@ -99,6 +101,7 @@ public class ClientManager {
     }
 
     public boolean isWaiting() {
+        System.out.println("Waiting");
         return clientThreads.containsValue(true);
     }
 
@@ -117,19 +120,19 @@ public class ClientManager {
 
     public void startDownloadThreads(String name) {
         List<FileSearchResult> fsr = FileSearchDB.get(searchFileByName(name));
-        ExecutorService threadPool = Executors.newFixedThreadPool(5); // Create a thread pool with max 5 threads
-
-        DownloadTaskManager dtm = new DownloadTaskManager(this, fsr.get(0).getFileInfo());
+        DownloadTaskManager dtm = new DownloadTaskManager(this, fsr.getFirst().getFileInfo(),fsr);
         this.downloadThreads.put(dtm.getUid(), dtm);
-
-        for (FileSearchResult file : fsr) {
-            threadPool.execute(() -> {
-                ClientThread clientThread = addClientThread(file.getIp(), file.getPort());
-                dtm.addDownloadThread(clientThread);
-            });
-        }
         dtm.startDownload();
-        threadPool.shutdown();
+
+    }
+
+    public void addListener(ClientManagerListener listener) {
+        listeners.add(listener);
+    }
+    private void notifyListeners(HashMap<String, List<FileSearchResult>> response) {
+        for (ClientManagerListener listener : listeners) {
+            listener.onRequestComplete();
+        }
     }
 
 }

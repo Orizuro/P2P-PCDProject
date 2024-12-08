@@ -37,7 +37,7 @@ public class ClientThread extends Thread implements Comparable<ClientThread> {
     }
 
     // Method to send a message to this client
-    public void sendObject(Command command, Object message) throws IOException, InterruptedException {
+    public synchronized void sendObject(Command command, Object message) throws IOException, InterruptedException {
 
         socketClient.sendObject(command, message);
     }
@@ -61,6 +61,12 @@ public class ClientThread extends Thread implements Comparable<ClientThread> {
             System.out.println("Error closing connection for " + clientName + ": " + e.getMessage());
         }
         System.out.println(clientName + " has been safely terminated.");
+    }
+
+    public void terminateWithoutManager() throws IOException, InterruptedException {
+        isRunning = false; // Signal the thread to stop.
+        interrupt(); // Interrupt the thread if it's blocked.
+        socketClient.stopConnection();
     }
 
     public void terminate() {
