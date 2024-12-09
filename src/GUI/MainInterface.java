@@ -2,6 +2,7 @@ package GUI;
 
 import Client.*;
 import Communication.Command;
+import Files.DownloadTaskManager;
 import Search.FileSearchResult;
 import Search.WordSearchMessage;
 import Server.RunnableSocketServer;
@@ -14,10 +15,14 @@ import Search.FileSearchResult;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.util.HashMap;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
+import java.util.*;
 import java.util.List;
 
 import javax.swing.*;
+import javax.swing.Timer;
+import javax.swing.event.ListSelectionListener;
 
 import static java.lang.Thread.sleep;
 
@@ -25,6 +30,8 @@ public class MainInterface {
 
     private JFrame frame;
     private DefaultListModel<String> searchResultsModel; // Modelo para a JList
+    private DefaultListModel<String> downloadResultsModel;
+    private Map<String,Integer> donwloadResults = new TreeMap<>();
     ClientManager clientManager;
 
     public MainInterface(ClientManager clientManage) {
@@ -48,7 +55,7 @@ public class MainInterface {
 
         // Layout do Painel superior
         JPanel topPanel = new JPanel(new GridLayout(1,3)); //para ficar centrado como o exemplo dado pelo prof tem que se usar a GridLayout, embora também possamos usar aqui a BorderLayout e ficaria melhor visualmente
-
+        JPanel bottomPanel = new JPanel(new GridLayout(1,3));
         JLabel instructionsSearchWindow = new JLabel("Texto a procurar: ");
         JTextField message = new JTextField("");
         JButton buttonSearch = new JButton("Procurar");
@@ -69,7 +76,17 @@ public class MainInterface {
         JScrollPane scrollPane = new JScrollPane(searchResultsList);
         leftPanel.add(scrollPane, BorderLayout.CENTER);
 
-        frame.add(leftPanel, BorderLayout.CENTER);
+        frame.add(scrollPane, BorderLayout.CENTER);
+
+
+        downloadResultsModel = new DefaultListModel<>();
+
+        JList<String> downloadResultsList = new JList<>(downloadResultsModel);
+
+        bottomPanel.add(downloadResultsList, BorderLayout.SOUTH);
+
+        //leftPanel.add(leftPanel, BorderLayout.SOUTH);
+        frame.add(downloadResultsList, BorderLayout.SOUTH);
 
 
         // Layout do Painel lateral direito
@@ -77,6 +94,7 @@ public class MainInterface {
 
         JButton buttonDownload = new JButton("Descarregar");
         JButton buttonNode = new JButton("Ligar a Nó");
+
 
         rightPanel.add(buttonDownload, BorderLayout.NORTH);
         rightPanel.add(buttonNode, BorderLayout.SOUTH);
@@ -116,18 +134,51 @@ public class MainInterface {
         });
 
         buttonDownload.addActionListener(new ActionListener() {
+
             @Override
             public void actionPerformed(ActionEvent e) {
                 String selectedFile = searchResultsList.getSelectedValue();
                 if (selectedFile != null) {
                     String modifiedString = selectedFile.substring(0, selectedFile.length() - 3);
-                    clientManager.startDownloadThreads(modifiedString);
+                    DownloadTaskManager dtm = clientManager.startDownloadThreads(modifiedString);
+                    dtm.addListener((filename, fileblock) -> {
+                        System.out.println("received update");
+                        SwingUtilities.invokeLater( ()-> {
+                            if(!donwloadResults.containsValue(filename)) {
+                                donwloadResults.put(filename,fileblock);
+                            }else{
+                                donwloadResults.replace(filename,fileblock);
+                            }
+                            downloadResultsModel.clear();
+                            donwloadResults.forEach((key,value)->{
+                                downloadResultsModel.addElement(key + " " +  value + "%");
+                            });
+                        });
+                    });
+                    downloadResultsList.addMouseListener(new MouseAdapter() {
+                        @Override
+                        public void mouseClicked(MouseEvent e) {
+                            if (e.getClickCount() == 2) { // Double-click detected
+                                int index = downloadResultsList.locationToIndex(e.getPoint()); // Get the clicked item index
+                                if (index != -1) {
+                                    List<String> result = new ArrayList<>();
+                                    for( FileSearchResult search : dtm.availableNodes){
+                                        result.add( search.getIp() + "/" + search.getPort() );
+                                    }
+
+                                    JOptionPane.showMessageDialog(frame, "You clicked on: " + result , "Item Clicked", JOptionPane.INFORMATION_MESSAGE);
+                                }
+                            }
+                        }
+                    });
                     JOptionPane.showMessageDialog(frame, "Download iniciado com sucesso.");
                 } else {
                     JOptionPane.showMessageDialog(frame, "Selecione um ficheiro primeiro.");
                 }
             }
         });
+
+
 
 
         // Action Listener do Botão "Ligar a Nó"

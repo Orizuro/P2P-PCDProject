@@ -46,13 +46,6 @@ public class ClientThread extends Thread implements Comparable<ClientThread> {
         return clientName;
     }
 
-    public String getIp() {
-        return ip;
-    }
-    public int getPort() {
-        return port;
-    }
-
     private void cleanup() {
         clientManager.removeClientThread(this); // Unregister from the manager.
         try {
@@ -67,6 +60,7 @@ public class ClientThread extends Thread implements Comparable<ClientThread> {
         isRunning = false; // Signal the thread to stop.
         interrupt(); // Interrupt the thread if it's blocked.
         socketClient.stopConnection();
+        System.out.println(clientName + " has been terminated.");
     }
 
     public void terminate() {

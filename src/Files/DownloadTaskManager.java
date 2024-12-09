@@ -1,6 +1,7 @@
 package Files;
 
 import Client.ClientManager;
+import Client.ClientManagerListener;
 import Client.ClientThread;
 import Communication.Command;
 import Download.FileBlockAnswerMessage;
@@ -25,7 +26,8 @@ public class DownloadTaskManager extends Thread {
     List<ClientThread> availableThreads = new ArrayList<>();
     private int numberThreads = 5;
     ExecutorService threadPool = Executors.newFixedThreadPool(numberThreads);
-    List<FileSearchResult> availableNodes;
+    public List<FileSearchResult> availableNodes;
+    private final List<DownloadTaskManagerListener> listeners = new ArrayList<>();
 
 
     public DownloadTaskManager(ClientManager clientmanager, FileInfo  fileInfo, List<FileSearchResult> nodes) {
@@ -71,6 +73,7 @@ public class DownloadTaskManager extends Thread {
 
         fileInfo.writeFile(fileData);
         System.out.println("File downloaded");
+
         threadPool.shutdown();
         for(ClientThread thread : availableThreads){
             try {
@@ -86,7 +89,9 @@ public class DownloadTaskManager extends Thread {
     }
 
     public void addFileblock(int blockId, FileBlockAnswerMessage fileBlock){
+
         fileData.put(blockId,fileBlock);
+        notifyListeners(fileData.size());
     }
     public String getUid() {
         return uid;
@@ -101,6 +106,18 @@ public class DownloadTaskManager extends Thread {
         availableThreads.add(clientThread);
     }
 
+
+    public void addListener(DownloadTaskManagerListener listener) {
+        listeners.add(listener);
+    }
+
+
+    private void notifyListeners(int blockSize) {
+        for (DownloadTaskManagerListener listener : listeners) {
+            float percentage = (float) blockSize /fileInfo.blockNumber;
+            listener.onRequestComplete(fileInfo.name, (int) (percentage * 100));
+        }
+    }
     /*
     @Override
     public synchronized String toString() {

@@ -24,17 +24,16 @@ public class ClientManager {
         this.FileSearchDB = new HashMap<String, List<FileSearchResult>>();
     }
 
-    public synchronized ClientThread addClientThread(String ip, int port) {
+    public void addClientThread(String ip, int port) {
         ClientThread newThread = new ClientThread(this, ip, port);
         clientThreads.put(newThread, false);
-        return newThread;
     }
 
-    public synchronized void removeClientThread(ClientThread clientThread) {
+    public void removeClientThread(ClientThread clientThread) {
         clientThreads.remove(clientThread);
     }
 
-    public synchronized void sendAll(Command command, Object message) {
+    public void sendAll(Command command, Object message) {
         for (ClientThread clientThread : clientThreads.keySet()) {
             threadPool.submit(() -> {
                 try {
@@ -50,13 +49,13 @@ public class ClientManager {
     }
 
 
-    public synchronized void sendThread(ClientThread clientThread,Command command, Object message) throws IOException, InterruptedException {
+    public  void sendThread(ClientThread clientThread,Command command, Object message) throws IOException, InterruptedException {
         clientThreads.replace(clientThread, true);
         clientThread.sendObject(command,message);
     }
 
 
-    public synchronized void receive(MessageWrapper message, ClientThread clientThread) {
+    public  void receive(MessageWrapper message, ClientThread clientThread) {
         switch (message.getCommand()) {
             case Command.FileSearchResult: {
                 FileSearchResult[] received = (FileSearchResult[])  message.getData();
@@ -83,7 +82,7 @@ public class ClientManager {
 
     }
 
-    public synchronized HashMap<String, List<FileSearchResult>> getData() {
+    public  HashMap<String, List<FileSearchResult>> getData() {
         return this.FileSearchDB;
     }
 
@@ -93,7 +92,7 @@ public class ClientManager {
         }else{
             this.FileSearchDB.put(file.getFileInfo().filehash, new ArrayList<FileSearchResult>() {{ add(file);}});
         }
-        notifyListeners(FileSearchDB);
+        notifyListeners();
     }
 
     public void resetFileSearchDB(){
@@ -118,18 +117,19 @@ public class ClientManager {
         return null;
     }
 
-    public void startDownloadThreads(String name) {
+    public DownloadTaskManager startDownloadThreads(String name) {
         List<FileSearchResult> fsr = FileSearchDB.get(searchFileByName(name));
         DownloadTaskManager dtm = new DownloadTaskManager(this, fsr.getFirst().getFileInfo(),fsr);
         this.downloadThreads.put(dtm.getUid(), dtm);
         dtm.startDownload();
+        return dtm;
 
     }
 
     public void addListener(ClientManagerListener listener) {
         listeners.add(listener);
     }
-    private void notifyListeners(HashMap<String, List<FileSearchResult>> response) {
+    private void notifyListeners() {
         for (ClientManagerListener listener : listeners) {
             listener.onRequestComplete();
         }
