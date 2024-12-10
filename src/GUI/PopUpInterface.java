@@ -13,9 +13,9 @@ import java.util.regex.PatternSyntaxException;
 
 public class PopUpInterface {
 
-    private JFrame frame;
+    private final JFrame frame;
     private DefaultListModel<String> searchResultsModel; // Modelo para a JList
-    private ClientManager clientManager;
+    private final ClientManager clientManager;
 
     public PopUpInterface(ClientManager clientManage) {
         this.clientManager = clientManage;

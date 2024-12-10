@@ -16,10 +16,6 @@ public final class FileBlockAnswerMessage implements Serializable {
         this.data = Arrays.copyOf(data, data.length); // Evita alterações externas - Imutabilidade para maior segurança
     }
 
-    public String getFileHash() {
-        return fileHash;
-    }
-
     public byte[] getData() {
         return Arrays.copyOf(data, data.length); // Evita modificações externas - Imutabilidade para maior segurança
     }

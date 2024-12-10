@@ -5,10 +5,10 @@ import Files.FileInfo;
 import java.io.Serializable;
 
 public class FileSearchResult implements Serializable {
-    private WordSearchMessage wordSearchMessage;
-    private FileInfo searchTaskManager;
-    private String ip;
-    private int port;
+    private final WordSearchMessage wordSearchMessage;
+    private final FileInfo searchTaskManager;
+    private final String ip;
+    private final int port;
 
 
     public FileSearchResult(WordSearchMessage wordSearchMessage, FileInfo searchTaskManager, String ip, int port) {
@@ -35,12 +35,4 @@ public class FileSearchResult implements Serializable {
         return this.port;
     }
 
-    /*
-    Debug porpose
-    @Override
-    public String toString() {
-        return ( "Word:" + wordSearchMessage.getMessage() + " |Hash:" + searchTaskManager.filehash + " |FileSize:" + searchTaskManager.fileSize + " |FileName:" + searchTaskManager.name + " |IP:" + ip + " |Port:" + port  );
-    }
-
-     */
 }

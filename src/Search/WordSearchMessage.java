@@ -14,11 +14,6 @@ public class WordSearchMessage implements Serializable {
         this.message = text;
     }
 
-    public String getMessage(){
-        return this.message;
-    }
-
-
     public List<FileInfo> search(){
         GlobalConfig gc = GlobalConfig.getInstance();
         Map<FileInfo,Integer> occurrenceMap = new TreeMap<FileInfo, Integer>();

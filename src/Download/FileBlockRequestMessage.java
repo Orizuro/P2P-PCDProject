@@ -8,10 +8,10 @@ import java.io.File;
 import java.io.Serializable;
 
 public class FileBlockRequestMessage implements Serializable {
-    private FileBlockInfo requestBlock;
-    private String fileHash;
-    private String dtmUID;
-    private int blockID;
+    private final FileBlockInfo requestBlock;
+    private final String fileHash;
+    private final String dtmUID;
+    private final int blockID;
 
     public FileBlockRequestMessage(FileBlockInfo requestBlock, String fileHash, String dtmUID, int blockID) {
         this.blockID = blockID;

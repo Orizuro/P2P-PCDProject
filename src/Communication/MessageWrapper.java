@@ -3,11 +3,11 @@ package Communication;
 import java.io.Serializable;
 
 public class MessageWrapper implements Serializable {
-    private String serverIp;
-    private int serverPort;
-    private Command command;
-    private Object data;     // Variável que armazena os dados associados à mensagem
-    //, String senderIp
+    private final String serverIp;
+    private final int serverPort;
+    private final Command command;
+    private final Object data;     // Variável que armazena os dados associados à mensagem
+
     public MessageWrapper(String serverIp, int serverPort, Command command, Object data) {
         this.serverIp = serverIp;
         this.serverPort = serverPort;

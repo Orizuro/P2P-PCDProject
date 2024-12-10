@@ -20,15 +20,15 @@ public class FileInfo implements Serializable, Comparable<FileInfo> {
     final int blocksize = 102400;
 
     public FileInfo(File file){
-         if(file.getName().endsWith(".ser") || file.isDirectory()){ // Verifica se o arquivo é um .ser ou um diretório
+         if( file.isDirectory()){
              return;
          }
-             this.name = file.getName();
-             this.fileSize = (int) file.length();
-             this.blockNumber = (int) Math.ceil( (double) fileSize / blocksize) ;  // Calcula o número de blocos
-             this.filehash = getFileHash(file);   // Obtém o hash do arquivo
-             this.fileBlockManagers = new ArrayList<>();
-             splitFile(file);
+         this.name = file.getName();
+         this.fileSize = (int) file.length();
+         this.blockNumber = (int) Math.ceil( (double) fileSize / blocksize) ;  // Calcula o número de blocos
+         this.filehash = getFileHash(file);   // Obtém o hash do arquivo
+         this.fileBlockManagers = new ArrayList<>();
+         splitFile(file);
 
      }
 

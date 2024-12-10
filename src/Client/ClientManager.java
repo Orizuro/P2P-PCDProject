@@ -12,9 +12,9 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
 public class ClientManager {
-    private Map<ClientThread, Boolean> clientThreads;
-    private HashMap<String, List<FileSearchResult>> FileSearchDB;
-    private Map<String,DownloadTaskManager> downloadThreads = new HashMap<>();
+    private final Map<ClientThread, Boolean> clientThreads;
+    private final HashMap<String, List<FileSearchResult>> FileSearchDB;
+    private final Map<String,DownloadTaskManager> downloadThreads = new HashMap<>();
     private final ExecutorService threadPool = Executors.newFixedThreadPool(5); // Configurable pool size
     private final List<ClientManagerListener> listeners = new ArrayList<>();
 
@@ -48,13 +48,6 @@ public class ClientManager {
         }
     }
 
-
-    public  void sendThread(ClientThread clientThread,Command command, Object message) throws IOException, InterruptedException {
-        clientThreads.replace(clientThread, true);
-        clientThread.sendObject(command,message);
-    }
-
-
     public  void receive(MessageWrapper message, ClientThread clientThread) {
         switch (message.getCommand()) {
             case Command.FileSearchResult: {
@@ -62,20 +55,17 @@ public class ClientManager {
                 for (FileSearchResult file : received) {
                     addToFileSearchResult(file);
                 }
-                //clientThread.terminate();
                 clientThreads.replace(clientThread, false);
                 break;
             }
             case Command.DownloadResult:{
                 FileBlockAnswerMessage received = (FileBlockAnswerMessage)  message.getData();
                 System.out.println("Cliente received block :" + received.getBlockId());
-                //clientThreads.replace(clientThread, false);
                 downloadThreads.get(received.getDtmUID()).addFileblock(received.getBlockId(),received);
                 break;
             }
             default: {
                 System.out.println(message.getData().toString() + Thread.currentThread().getName());
-                //clientThreads.replace(clientThread, false);
                 break;
             }
         }
@@ -90,22 +80,13 @@ public class ClientManager {
         if(this.FileSearchDB.containsKey(file.getFileInfo().filehash)){
             this.FileSearchDB.get(file.getFileInfo().filehash).add(file);
         }else{
-            this.FileSearchDB.put(file.getFileInfo().filehash, new ArrayList<FileSearchResult>() {{ add(file);}});
+            this.FileSearchDB.put(file.getFileInfo().filehash, new ArrayList<>() {{ add(file);}});
         }
         notifyListeners();
     }
 
     public void resetFileSearchDB(){
         this.FileSearchDB.clear();
-    }
-
-    public boolean isWaiting() {
-        System.out.println("Waiting");
-        return clientThreads.containsValue(true);
-    }
-
-    public boolean isThreadBusy(ClientThread clientThread) {
-        return this.clientThreads.get(clientThread);
     }
 
     public String searchFileByName(String name){
@@ -129,6 +110,7 @@ public class ClientManager {
     public void addListener(ClientManagerListener listener) {
         listeners.add(listener);
     }
+
     private void notifyListeners() {
         for (ClientManagerListener listener : listeners) {
             listener.onRequestComplete();

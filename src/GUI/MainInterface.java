@@ -28,16 +28,18 @@ import static java.lang.Thread.sleep;
 
 public class MainInterface {
 
-    private JFrame frame;
+    private final JFrame frame;
     private DefaultListModel<String> searchResultsModel; // Modelo para a JList
     private DefaultListModel<String> downloadResultsModel;
-    private Map<String,Integer> donwloadResults = new TreeMap<>();
-    private Map<String, DownloadTaskManager> dtmmap = new TreeMap<>();
+    private final Map<String,Integer> donwloadResults = new TreeMap<>();
+    private final Map<String, DownloadTaskManager> dtmmap = new TreeMap<>();
     ClientManager clientManager;
 
-    public MainInterface(ClientManager clientManage) {
+    public MainInterface(ClientManager clientManage, String ip, int port) {
         this.clientManager = clientManage;
+
         frame = new JFrame();
+        frame.setTitle(ip + "/" + port) ;
         frame.setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE); // para que o botao de fechar a janela termine a aplicacao
         addFrameContent();
         frame.pack(); // para que a janela se redimensione de forma a ter tod o seu conteudo visivel

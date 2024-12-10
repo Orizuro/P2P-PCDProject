@@ -21,11 +21,10 @@ public class Node {
         thread_server.start();
         ClientManager clientManager = new ClientManager();
 
-        //TODO fix documents appering in /src
         GlobalConfig gc = GlobalConfig.getInstance();
-        gc.setDefaultPath("documents/" + port + "/");
+        gc.setDefaultPath("documents/dl" + port % 10+ "/");
 
-        MainInterface gui = new MainInterface(clientManager);
+        MainInterface gui = new MainInterface(clientManager,host, port);
         gui.open();
     }
 }

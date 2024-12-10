@@ -16,7 +16,7 @@ public class SocketServer extends Thread {
 
     private ServerSocket serverSocket;
     private int port;
-    private boolean running = true;    // Para controlar o estado da comunicação do servidor
+    private final boolean running = true;    // Para controlar o estado da comunicação do servidor
     boolean isPortBound = false;
 
     public SocketServer(int port) {

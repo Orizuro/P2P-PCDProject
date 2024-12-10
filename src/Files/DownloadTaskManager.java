@@ -17,14 +17,14 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicLong;
 
 public class DownloadTaskManager extends Thread {
-    private ClientManager clientManager;
-    private FileInfo  fileInfo;
-    private Map<Integer, Boolean> blockStatus;
-    private Map<Integer, FileBlockAnswerMessage> fileData = new TreeMap<>();
+    private final ClientManager clientManager;
+    private final FileInfo  fileInfo;
+    private final Map<Integer, Boolean> blockStatus;
+    private final Map<Integer, FileBlockAnswerMessage> fileData = new TreeMap<>();
     private final String uid = UUID.randomUUID().toString();
     private long totalTime;
     List<ClientThread> availableThreads = new ArrayList<>();
-    private int numberThreads = 5;
+    private final int numberThreads = 5;
     ExecutorService threadPool = Executors.newFixedThreadPool(numberThreads);
     public List<FileSearchResult> availableNodes;
     private final List<DownloadTaskManagerListener> listeners = new ArrayList<>();
@@ -78,11 +78,11 @@ public class DownloadTaskManager extends Thread {
         threadPool.shutdown();
         for(ClientThread thread : availableThreads){
             try {
-                thread.terminateWithoutManager();
+                thread.terminate();
             } catch (IOException | InterruptedException e) {
                 throw new RuntimeException(e);
             }
-        };
+        }
     }
 
     public float getTotalTime(){
@@ -111,7 +111,6 @@ public class DownloadTaskManager extends Thread {
         availableThreads.add(clientThread);
     }
 
-
     public void addListener(DownloadTaskManagerListener listener) {
         listeners.add(listener);
     }
@@ -123,15 +122,4 @@ public class DownloadTaskManager extends Thread {
             listener.onRequestComplete(fileInfo.name, (int) (percentage * 100));
         }
     }
-    /*
-    @Override
-    public synchronized String toString() {
-        return "FileDownloadResult{" +
-                "fileName='" + fileName + '\'' +
-                ", totalTime=" + totalTime +
-                ", blockStats=" + blockStatus +
-                ", success=" + success +
-                '}';
-    }
-     */
 }

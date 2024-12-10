@@ -13,35 +13,33 @@ public class FileBlockInfo implements Serializable {
     FileBlockInfo(File file, int startByte, int endByte) {
         this.startByte = startByte;
         this.endByte = endByte;
-        this.hash = hashblock(file);
+        this.hash = hashBlock(file);
     }
 
     public byte[] readFileBytesInRange(File file) {
         try (RandomAccessFile randomAccessFile = new RandomAccessFile(file, "r")) {
-            int length = endByte - startByte ;//+ 1; // Length of the bytes to read
-            byte[] buffer = new byte[length];    // Buffer to hold the bytes
-
-            randomAccessFile.seek(startByte);    // Move to the start byte
-            randomAccessFile.readFully(buffer); // Read the specific range into the buffer
-
+            int length = endByte - startByte ;
+            byte[] buffer = new byte[length];
+            randomAccessFile.seek(startByte);
+            randomAccessFile.readFully(buffer);
             return buffer;
         } catch (IOException e) {
             e.printStackTrace();
-            return null; // Return null if an error occurs
+            return null;
         }
     }
 
-    public String hashblock(File file) {
+    public String hashBlock(File file) {
         try{
             MessageDigest digest = MessageDigest.getInstance("SHA-256");
             try (InputStream inputStream = Files.newInputStream(file.toPath())) { // Cria um fluxo de entrada para ler o arquivo
                 inputStream.skip(startByte);
                 byte[] buffer = new byte[512];
-                long remainingBytes = endByte - startByte + 1; // Total bytes to read
+                long remainingBytes = endByte - startByte + 1;
                 int bytesRead;
                 while (remainingBytes > 0 && (bytesRead = inputStream.read(buffer, 0, (int) Math.min(buffer.length, remainingBytes))) != -1) {
-                    digest.update(buffer, 0, bytesRead); // Update the digest with the bytes read
-                    remainingBytes -= bytesRead; // Reduce the number of remaining bytes to read
+                    digest.update(buffer, 0, bytesRead);
+                    remainingBytes -= bytesRead;
                 }
             }
             StringBuilder hexString = new StringBuilder();
