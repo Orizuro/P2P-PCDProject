@@ -22,7 +22,7 @@ public class DownloadTaskManager extends Thread {
     private Map<Integer, Boolean> blockStatus;
     private Map<Integer, FileBlockAnswerMessage> fileData = new TreeMap<>();
     private final String uid = UUID.randomUUID().toString();
-    private final AtomicLong totalTime;
+    private long totalTime;
     List<ClientThread> availableThreads = new ArrayList<>();
     private int numberThreads = 5;
     ExecutorService threadPool = Executors.newFixedThreadPool(numberThreads);
@@ -33,7 +33,7 @@ public class DownloadTaskManager extends Thread {
     public DownloadTaskManager(ClientManager clientmanager, FileInfo  fileInfo, List<FileSearchResult> nodes) {
         this.clientManager = clientmanager;
         this.fileInfo = fileInfo;
-        this.totalTime = new AtomicLong(0);
+        this.totalTime = 0;
         this.blockStatus = new ConcurrentHashMap<>();
         this.availableNodes = nodes;
     }
@@ -42,6 +42,7 @@ public class DownloadTaskManager extends Thread {
     public void run() {
         System.out.println("File blocks :" + fileInfo.blockNumber);
         Random random = new Random();
+        totalTime = System.currentTimeMillis();
         List<ClientThread> availableThreads = new ArrayList<>();
         for ( int i = 0; i < numberThreads; i++ ) {
             FileSearchResult node = availableNodes.get(random.nextInt(availableNodes.size()));
@@ -70,7 +71,7 @@ public class DownloadTaskManager extends Thread {
                 throw new RuntimeException(e);
             }
         }
-
+        totalTime = System.currentTimeMillis() - totalTime;
         fileInfo.writeFile(fileData);
         System.out.println("File downloaded");
 
@@ -82,6 +83,10 @@ public class DownloadTaskManager extends Thread {
                 throw new RuntimeException(e);
             }
         };
+    }
+
+    public float getTotalTime(){
+        return (float) totalTime / 1000;
     }
 
     public void startDownload() {

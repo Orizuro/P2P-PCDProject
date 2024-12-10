@@ -32,6 +32,7 @@ public class MainInterface {
     private DefaultListModel<String> searchResultsModel; // Modelo para a JList
     private DefaultListModel<String> downloadResultsModel;
     private Map<String,Integer> donwloadResults = new TreeMap<>();
+    private Map<String, DownloadTaskManager> dtmmap = new TreeMap<>();
     ClientManager clientManager;
 
     public MainInterface(ClientManager clientManage) {
@@ -134,13 +135,15 @@ public class MainInterface {
         });
 
         buttonDownload.addActionListener(new ActionListener() {
-
             @Override
             public void actionPerformed(ActionEvent e) {
                 String selectedFile = searchResultsList.getSelectedValue();
                 if (selectedFile != null) {
                     String modifiedString = selectedFile.substring(0, selectedFile.length() - 3);
                     DownloadTaskManager dtm = clientManager.startDownloadThreads(modifiedString);
+                    dtmmap.remove(modifiedString);
+                    dtmmap.put(modifiedString, dtm);
+
                     dtm.addListener((filename, fileblock) -> {
                         System.out.println("received update");
                         SwingUtilities.invokeLater( ()-> {
@@ -155,25 +158,23 @@ public class MainInterface {
                             });
                         });
                     });
-                    downloadResultsList.addMouseListener(new MouseAdapter() {
-                        @Override
-                        public void mouseClicked(MouseEvent e) {
-                            if (e.getClickCount() == 2) { // Double-click detected
-                                int index = downloadResultsList.locationToIndex(e.getPoint()); // Get the clicked item index
-                                if (index != -1) {
-                                    List<String> result = new ArrayList<>();
-                                    for( FileSearchResult search : dtm.availableNodes){
-                                        result.add( search.getIp() + "/" + search.getPort() );
-                                    }
-
-                                    JOptionPane.showMessageDialog(frame, "You clicked on: " + result , "Item Clicked", JOptionPane.INFORMATION_MESSAGE);
-                                }
-                            }
-                        }
-                    });
                     JOptionPane.showMessageDialog(frame, "Download iniciado com sucesso.");
                 } else {
                     JOptionPane.showMessageDialog(frame, "Selecione um ficheiro primeiro.");
+                }
+            }
+        });
+        downloadResultsList.addMouseListener(new MouseAdapter() {
+            @Override
+            public void mouseClicked(MouseEvent e) {
+                if (e.getClickCount() == 2) {
+                    String raw = downloadResultsList.getSelectedValue();
+                    String treated = raw.substring(0, raw.length() - 5); // Get the clicked item index
+                    List<String> result = new ArrayList<>();
+                    for( FileSearchResult search : dtmmap.get(treated).availableNodes){
+                        result.add( search.getIp() + "/" + search.getPort() );
+                    }
+                    JOptionPane.showMessageDialog(frame, "Nodes: " + result +"\n" + "Total time: " + dtmmap.get(treated).getTotalTime() + "sec" , "File " + treated, JOptionPane.INFORMATION_MESSAGE);
                 }
             }
         });

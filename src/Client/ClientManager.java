@@ -21,7 +21,7 @@ public class ClientManager {
 
     public ClientManager() {
         this.clientThreads = new TreeMap<>();
-        this.FileSearchDB = new HashMap<String, List<FileSearchResult>>();
+        this.FileSearchDB = new HashMap<>();
     }
 
     public void addClientThread(String ip, int port) {
