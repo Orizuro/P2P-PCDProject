@@ -17,7 +17,7 @@ public class FileInfo implements Serializable, Comparable<FileInfo> {
     public int blockNumber; // Número de blocos que o arquivo será dividido
     public int fileSize;
     public List<FileBlockInfo> fileBlockManagers;
-    final int blocksize = 102400;
+    final int blocksize = 10240;
 
     public FileInfo(File file){
          if( file.isDirectory()){
@@ -50,7 +50,6 @@ public class FileInfo implements Serializable, Comparable<FileInfo> {
                 }
                 hexString.append(hex);
             }
-
             return hexString.toString();
         } catch (NoSuchAlgorithmException | IOException e) {
             e.printStackTrace();

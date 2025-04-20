@@ -8,12 +8,17 @@ public final class FileBlockAnswerMessage implements Serializable {
     private final String dtmUID;
     private final int blockId;
     private final byte[] data;
+    private final String senderIP;  // Novo campo
+    private final int senderPort;   // Novo campo
 
-    public FileBlockAnswerMessage(String fileHash, byte[] data, int blockId, String dtmUID) {
+
+    public FileBlockAnswerMessage(String fileHash, byte[] data, int blockId, String dtmUID, String senderIP, int senderPort) {
         this.fileHash = fileHash;
         this.dtmUID = dtmUID;
         this.blockId = blockId;
         this.data = Arrays.copyOf(data, data.length); // Evita alterações externas - Imutabilidade para maior segurança
+        this.senderIP = senderIP;
+        this.senderPort = senderPort;
     }
 
     public byte[] getData() {
@@ -28,6 +33,13 @@ public final class FileBlockAnswerMessage implements Serializable {
         return dtmUID;
     }
 
+    public String getSenderIP() {
+        return senderIP;
+    }
+
+    public int getSenderPort() {
+        return senderPort;
+    }
 
     @Override
     public String toString() {
@@ -35,4 +47,5 @@ public final class FileBlockAnswerMessage implements Serializable {
                 "fileHash='" + fileHash + '\'' +
                 '}';
     }
+
 }

@@ -166,23 +166,42 @@ public class MainInterface {
                 }
             }
         });
+
         downloadResultsList.addMouseListener(new MouseAdapter() {
             @Override
             public void mouseClicked(MouseEvent e) {
                 if (e.getClickCount() == 2) {
                     String raw = downloadResultsList.getSelectedValue();
-                    String treated = raw.substring(0, raw.length() - 5); // Get the clicked item index
-                    List<String> result = new ArrayList<>();
-                    for( FileSearchResult search : dtmmap.get(treated).availableNodes){
-                        result.add( search.getIp() + "/" + search.getPort() );
+                    String treated = raw.substring(0, raw.length() - 5);
+                    DownloadTaskManager dtm = dtmmap.get(treated);
+
+                    if (dtm != null) {
+                        StringBuilder message = new StringBuilder();
+
+                        // Blocos por nó
+                        Map<String, Integer> blocksPerNode = dtm.getBlocksPerNodeStats();
+                        message.append("=== Download concluído com sucesso! ===\n");
+                        blocksPerNode.forEach((node, count) -> {
+                            String[] parts = node.split(":");
+                            String ip = parts[0];
+                            String port = parts[1];
+                            message.append(String.format("- %s [%s]: %d blocos (%.1f%%)",
+                                    ip, port, count, (count * 100.0) / dtm.getTotalBlocks()));
+                        });
+
+                        // Tempo total
+                        message.append(String.format("\nTempo decorrido: %.3f segundos", dtm.getTotalTime()));
+
+                        JOptionPane.showMessageDialog(
+                                frame,
+                                message.toString(),
+                                "Stats: " + treated,
+                                JOptionPane.INFORMATION_MESSAGE
+                        );
                     }
-                    JOptionPane.showMessageDialog(frame, "Nodes: " + result +"\n" + "Total time: " + dtmmap.get(treated).getTotalTime() + "sec" , "File " + treated, JOptionPane.INFORMATION_MESSAGE);
                 }
             }
         });
-
-
-
 
         // Action Listener do Botão "Ligar a Nó"
         buttonNode.addActionListener(new ActionListener() {

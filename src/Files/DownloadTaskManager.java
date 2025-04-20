@@ -21,13 +21,16 @@ public class DownloadTaskManager extends Thread {
     private final FileInfo  fileInfo;
     private final Map<Integer, Boolean> blockStatus;
     private final Map<Integer, FileBlockAnswerMessage> fileData = new TreeMap<>();
-    private final String uid = UUID.randomUUID().toString();
     private long totalTime;
+    public List<FileSearchResult> availableNodes;
+
+    private final String uid = UUID.randomUUID().toString();
     List<ClientThread> availableThreads = new ArrayList<>();
     private final int numberThreads = 5;
     ExecutorService threadPool = Executors.newFixedThreadPool(numberThreads);
-    public List<FileSearchResult> availableNodes;
     private final List<DownloadTaskManagerListener> listeners = new ArrayList<>();
+
+    private final Map<String, Integer> blocksPerNode = new HashMap<>(); // Chave: "IP:Porta", Valor: contagem de blocos
 
 
     public DownloadTaskManager(ClientManager clientmanager, FileInfo  fileInfo, List<FileSearchResult> nodes) {
@@ -89,18 +92,30 @@ public class DownloadTaskManager extends Thread {
         return (float) totalTime / 1000;
     }
 
+    public String getUid() {
+        return uid;
+    }
+
+    public int getTotalBlocks(){
+        return fileInfo.blockNumber;
+    }
+
     public void startDownload() {
         this.start();
     }
 
     public void addFileblock(int blockId, FileBlockAnswerMessage fileBlock){
-
         fileData.put(blockId,fileBlock);
+        String nodeKey = fileBlock.getSenderIP() + ":" + fileBlock.getSenderPort();
+        blocksPerNode.merge(nodeKey, 1, Integer::sum); // Incrementa dos blocos descarregados por nó
         notifyListeners(fileData.size());
     }
-    public String getUid() {
-        return uid;
+
+    // Novo métosdo para obter estatísticas (usado pela GUI):
+    public Map<String, Integer> getBlocksPerNodeStats() {
+        return new HashMap<>(blocksPerNode); // Retorna cópia para evitar concorrência
     }
+
 
     public boolean isFinished(){
         return fileData.size() == fileInfo.blockNumber;

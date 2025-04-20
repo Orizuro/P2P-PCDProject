@@ -6,6 +6,7 @@ import java.util.List;
 
 import Communication.Command;
 import Communication.MessageWrapper;
+import Communication.NewConnectionRequest_NotUsedYet;
 import Download.FileBlockAnswerMessage;
 import Download.FileBlockRequestMessage;
 import Files.FileInfo;
@@ -16,7 +17,7 @@ public class SocketServer extends Thread {
 
     private ServerSocket serverSocket;
     private int port;
-    private final boolean running = true;    // Para controlar o estado da comunicação do servidor
+    private boolean running = true;    // Para controlar o estado da comunicação do servidor
     boolean isPortBound = false;
 
     public SocketServer(int port) {
@@ -32,12 +33,10 @@ public class SocketServer extends Thread {
                 } catch (BindException e) {
                     System.out.println("Port " + port + " is in use. Trying next port...");
                     port++;
-
                 } catch (IOException e) {
                     throw new RuntimeException("An unexpected error occurred while binding the port", e);
                 }
             }
-
             serverSocket.setReuseAddress(true);    // Permite que o endereço de socket criado possa ser reutilizado
             System.out.println("Server listening on port " + port);
             while (running) {
@@ -59,36 +58,60 @@ public class SocketServer extends Thread {
     public void handleClient(Socket socket) throws IOException {        //Metodo que lidar com o cliente
         ObjectOutputStream out = new ObjectOutputStream(socket.getOutputStream());  // Cria um fluxo de saída para o cliente
         ObjectInputStream in = new ObjectInputStream(socket.getInputStream());    // Cria um fluxo de entrada do cliente
+
         while(running){     // Loop que continua enquanto o servidor está em execução
             try {
                 MessageWrapper message = (MessageWrapper) in.readObject();
                 System.out.println("Server received message");
+
                 switch (message.getCommand()) {
+
                     case Command.WordSearchMessage:{    // Para a busca de palavras
                         WordSearchMessage data =  (WordSearchMessage)  message.getData();    // Obtém os dados da mensagem
                         List<FileInfo> searchResult =  data.search();      // Realiza a busca e obtém os resultados
                         FileSearchResult[] result = new FileSearchResult[searchResult.size()];     // Cria um array para os resultados da busca
                         for(int i = 0; i < searchResult.size(); i++){        // Loop pelos resultados da busca
-                            result[i] = new FileSearchResult(data, searchResult.get(i), message.getServerIp() ,message.getServerPort());       // Cria um resultado de busca para cada item encontrado
+                            result[i] = new FileSearchResult(
+                                    data,
+                                    searchResult.get(i),
+                                    message.getServerIp() ,
+                                    message.getServerPort());       // Cria um resultado de busca para cada item encontrado
                         }
-                        out.writeObject(new MessageWrapper(message.getServerIp(),message.getServerPort(),Command.FileSearchResult ,result));    // Envia os resultados de volta para o cliente
+                        out.writeObject(new MessageWrapper(
+                                message.getServerIp(),
+                                message.getServerPort(),
+                                Command.FileSearchResult,
+                                result));    // Envia os resultados de volta para o cliente
                         break; // Sai do switch
                     }
+
                     case Command.DownloadMessage:{
                         FileBlockRequestMessage data =  (FileBlockRequestMessage)  message.getData();
-                        FileBlockAnswerMessage result =  new FileBlockAnswerMessage(data.getFileHash(),data.getBlock(),data.getBlockID(), data.getDtmUID());
+                        FileBlockAnswerMessage result =  new FileBlockAnswerMessage(
+                                data.getFileHash(),
+                                data.getBlock(),
+                                data.getBlockID(),
+                                data.getDtmUID(),
+                                socket.getInetAddress().getHostAddress(),
+                                this.port);
                         System.out.println("Server sending block " + result.getBlockId());
-                        out.writeObject(new MessageWrapper(message.getServerIp(),message.getServerPort(),Command.DownloadResult ,result));
+                        out.writeObject(new MessageWrapper(
+                                message.getServerIp(),
+                                message.getServerPort(),
+                                Command.DownloadResult ,result));
                         break;
                     }
+
                     case Command.Terminate:{   // Para terminar a comunicação
                         socketStop();
                         return;
                     }
+
                     case Command.String:{     // Para tratamento de Strings
                         out.writeObject(message);
                         break;
                     }
+
                     default:{      // Para comandos desconhecidos
                         System.out.println("Unknown command");
                         break;
@@ -97,15 +120,14 @@ public class SocketServer extends Thread {
 
             } catch (IOException | ClassNotFoundException e) {
                 throw new RuntimeException(e);
-
             }
         }
     }
 
     public synchronized void socketStop() throws IOException {
-        //this.running = false;   // Altera o estado do servidor para "já não estou em execução"
-        //notifyAll();  // Não é necessário notificar todas as Threads (?sasha?)
-        //this.serverSocket.close();   // Fecha o socket do servidor
+        this.running = false;   // Altera o estado do servidor para "já não estou em execução"
+        //notifyAll();  // Não é necessário notificar todas as Threads
+        this.serverSocket.close();   // Fecha o socket do servidor
         System.out.println("Connection closed server ");
     }
 }

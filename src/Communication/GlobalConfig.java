@@ -14,7 +14,6 @@ public class GlobalConfig {
         if (instance == null) {    // Verifica se a instância ainda não foi criada
             instance = new GlobalConfig();
         }
-
         return instance;
     }
 

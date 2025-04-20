@@ -27,7 +27,7 @@ public class SocketClient  {
             System.out.println(clientSocket.getLocalPort());
             System.out.println("Client connected to " + ip + ":" + port);
             this.out = new ObjectOutputStream(clientSocket.getOutputStream());  // Iniciado o fluxo de saída
-            this.in = new ObjectInputStream(clientSocket.getInputStream());   // Iniciadlo o fluxo de entrada
+            this.in = new ObjectInputStream(clientSocket.getInputStream());   // Iniciado o fluxo de entrada
             this.ready = true;  // Definida a conexão como pronta
             notify();
         }catch (IOException e) {
@@ -74,25 +74,6 @@ public class SocketClient  {
             System.err.println("Error closing socket: " + e.getMessage());
         }
     }
-
-    /*
-     try {
-            message = (MessageWrapper) in.readObject();    // Recebe e "desembrulha" uma mensagem
-            switch (message.getCommand()) {
-                case Command.FileSearchResult: {
-                    FileSearchResult[] data =  (FileSearchResult[])  message.getData();    // Converte os dados recebidos para um ficheiro/uma lista de FileSearchResult
-                    for (FileSearchResult file : data) {
-                        System.out.println(file.toString());    // Imprime os resultados/os dados do ficheiro FileSearchResult
-                    }
-                    break;
-                }
-                default: {
-                    System.out.println(message.getData().toString());     // Exibe outro tipo de dados (?sasha? - que outro tipo de dados são estes?)
-                    break;
-                }
-            }
-        }
-     */
 
 }
 
