@@ -3,19 +3,19 @@ package Communication;
 import java.io.Serializable;
 
 public class NewConnectionRequest_NotUsedYet implements Serializable {
-    private String clientHost;
-    private int clientPort;
+    private String hostname;
+    private int port;
 
     public NewConnectionRequest_NotUsedYet(String senderHost, int senderPort) {
-        this.clientHost = senderHost;
-        this.clientPort = senderPort;
+        this.hostname = senderHost;
+        this.port = senderPort;
     }
 
     public String getSenderHost() {
-        return clientHost;
+        return hostname;
     }
 
     public int getSenderPort() {
-        return clientPort;
+        return port;
     }
 }
